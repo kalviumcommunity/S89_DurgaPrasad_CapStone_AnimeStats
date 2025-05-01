@@ -1,3 +1,4 @@
+
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
@@ -15,6 +16,22 @@ const PORT = process.env.PORT || 8080;
 app.use(express.json());
 app.use(cors({
   origin: ['http://localhost:8080', 'http://localhost:3000','http://localhost:5173'],
+require('dotenv').config();
+const express = require('express');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const connectDB = require('./config/db');
+const authRoutes = require('./routes/authRoutes');
+
+const app = express();
+const PORT = process.env.PORT || 8080;
+
+// Middleware
+app.use(express.json());
+app.use(cors({
+  origin: ['http://localhost:8080', 'http://localhost:3000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -45,13 +62,20 @@ app.use(session({
 
 app.set('trust proxy', 1);
 
-// Debug middleware to log session data (REDUCED SENSITIVITY)
+app.set('trust proxy', 1);
+
+// Debug middleware to log session data
 app.use((req, res, next) => {
   console.log('=== Session Debug (All Requests) ===');
   console.log('Session ID:', req.sessionID);
   console.log('Session Data:', {
+
     state: req.session.state ? 'Present' : 'Undefined',
     codeVerifier: req.session.codeVerifier ? 'Present' : 'Undefined',
+
+    state: req.session.state,
+    codeVerifier: req.session.codeVerifier,
+
     authStartTime: req.session.authStartTime,
     codeUsed: req.session.codeUsed,
     callbackProcessed: req.session.callbackProcessed
@@ -61,10 +85,20 @@ app.use((req, res, next) => {
 });
 
 
+
 connectDB();
 
 app.use('/auth', authRoutes);
 app.use('/api/user', userRoutes);
+
+
+// MongoDB Connection
+connectDB();
+
+// Routes
+app.use('/auth', authRoutes);
+
+// Default Route
 
 app.get('/', (req, res) => {
   res.send('Anime Watchlist Tracker Backend Running! 🚀');
@@ -85,6 +119,7 @@ app.get('/test-oauth', (req, res) => {
   `);
 });
 
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('=== Error Details ===');
@@ -96,6 +131,16 @@ app.use((err, req, res, next) => {
   res.status(500).send('Server Error: An unexpected error occurred.');
 });
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('=== Error Details ===');
+  console.error('Error:', err);
+  console.error('Stack:', err.stack);
+  console.error('Session ID:', req.sessionID);
+  console.error('Session Data:', req.session);
+  console.error('=====================');
+  res.status(500).send('Server Error: An unexpected error occurred.');
+});
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);

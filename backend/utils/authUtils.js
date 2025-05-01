@@ -1,3 +1,4 @@
+
 const crypto = require('crypto');
 
 function generateCodeVerifier() {
@@ -9,6 +10,7 @@ function generateCodeVerifier() {
     .replace(/=/g, '')
     .slice(0, length);
 }
+
 
 function generateCodeChallenge(codeVerifier) {
   return crypto
