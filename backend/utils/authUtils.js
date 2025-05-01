@@ -1,4 +1,4 @@
-// utils/authUtils.js
+
 const crypto = require('crypto');
 
 function generateCodeVerifier() {
@@ -11,8 +11,7 @@ function generateCodeVerifier() {
     .slice(0, length);
 }
 
-// Note: We are now using the plain method, so the challenge is the verifier itself.
-// Keeping this for potential future use or if other parts of the app need SHA256 hashing.
+
 function generateCodeChallenge(codeVerifier) {
   return crypto
     .createHash('sha256')

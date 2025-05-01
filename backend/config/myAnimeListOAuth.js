@@ -1,4 +1,7 @@
-// config/myAnimeListOAuth.js
+
+
+
+
 module.exports = {
     clientId: process.env.MAL_CLIENT_ID,
     clientSecret: process.env.MAL_CLIENT_SECRET,
