@@ -12,7 +12,10 @@ function App() {
       setError(null);
       try {
         const response = await fetch('http://localhost:8080/api/user/me', {
+
+
           credentials: 'include', // Added this line
+
         });
         if (!response.ok) {
           console.error('Error fetching user:', response.status);

@@ -42,4 +42,6 @@ const UserSchema = new mongoose.Schema({
   // ... other user-related fields ...
 }, { timestamps: true });
 
-module.exports = mongoose.model('User', UserSchema);
+
+// Check if the model has already been compiled
+module.exports = mongoose.models.User || mongoose.model('User', UserSchema);
