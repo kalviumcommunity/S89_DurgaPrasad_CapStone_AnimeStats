@@ -1,5 +1,13 @@
 const mongoose = require('mongoose');
 
+const watchlistEntrySchema = new mongoose.Schema({
+  animeId: Number,
+  status: String,
+  rating: Number,
+  progress: Number,
+  totalEpisodes: Number,
+}, { _id: false });
+
 const UserSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -15,33 +23,31 @@ const UserSchema = new mongoose.Schema({
   },
   password: {
     type: String,
+    required: false,
   },
+  googleId: {
+    type: String,
+    unique: true,
+    sparse: true,
+  },
+  name: String,
+  profilePicture: String,
+
   malId: {
     type: String,
     unique: true,
+    sparse: true,
   },
   malUsername: {
     type: String,
     trim: true,
   },
-  malAccessToken: {
-    type: String,
-  },
-  malRefreshToken: {
-    type: String,
-  },
-  malTokenExpiry: {
-    type: Number,
-  },
-  watchlist: [{
-    animeId: Number,
-    status: String,
-    rating: Number,
-    // ... other watchlist details
-  }],
-  // ... other user-related fields ...
+  malAccessToken: String,
+  malRefreshToken: String,
+  malTokenExpiry: Number,
+
+  watchlist: [watchlistEntrySchema],
+
 }, { timestamps: true });
 
-
-// Check if the model has already been compiled
 module.exports = mongoose.models.User || mongoose.model('User', UserSchema);
