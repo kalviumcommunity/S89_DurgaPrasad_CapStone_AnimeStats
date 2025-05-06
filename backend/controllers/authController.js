@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const axios = require('axios');
 const { clientId, clientSecret, redirectUri, authorizationUrl, tokenUrl } = require('../config/myAnimeListOAuth.js');
 const { generateCodeVerifier } = require('../utils/authUtils');
-const User = require("../models/user.js");
+const User = require("../models/User.js");
 
 const callback = async (req, res) => {
   const { code, state } = req.query;
@@ -91,6 +91,11 @@ const callback = async (req, res) => {
     const accessToken = tokenResponse.data.access_token;
     const refreshToken = tokenResponse.data.refresh_token;
     const tokenExpiry = Date.now() + (tokenResponse.data.expires_in * 1000);
+
+    // Store the access token in the session
+    req.session.malAccessToken = accessToken;
+    req.session.malRefreshToken = refreshToken; // You might want to store the refresh token as well
+    req.session.malTokenExpiry = tokenExpiry;
 
     // --- START: Fetch MyAnimeList User Info and Link/Create User ---
     try {
@@ -206,8 +211,11 @@ const login = async (req, res) => {
         console.log('Session ID:', req.sessionID);
         // Removed logging of state, codeVerifier, and codeChallenge
         console.log('Auth Start Time:', req.session.authStartTime);
+        console.log('Constructed Auth URL:', authUrl.toString()); // Added logging of the constructed URL
         console.log('======================================');
 
+        // Manually set the Access-Control-Allow-Origin header
+        res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
         res.redirect(authUrl.toString());
       });
     });
