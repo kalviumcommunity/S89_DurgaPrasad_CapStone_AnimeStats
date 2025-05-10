@@ -15,10 +15,11 @@ const PORT = process.env.PORT || 8080;
 app.use(cors({
   origin: function (origin, callback) {
     const allowedOrigins = ['http://localhost:8080', 'http://localhost:3000', 'http://localhost:5173'];
+    console.log('CORS Origin:', origin); // Log the origin
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error(`Not allowed by CORS: ${origin}`));
     }
   },
   credentials: true,
@@ -30,8 +31,8 @@ app.use(cors({
 // Configure session middleware with MongoDB store
 app.use(session({
   secret: process.env.SESSION_SECRET || 'anime-stats-secret-key',
-  resave: true,
-  saveUninitialized: true,
+  resave: false,
+  saveUninitialized: false,
   store: MongoStore.create({
     mongoUrl: process.env.MONGODB_URL,
     ttl: 24 * 60 * 60, // 1 day
@@ -49,7 +50,7 @@ app.use(session({
   }
 }));
 
-app.use(express.json()); // Make sure express.json() is included
+app.use(express.json());
 
 // Trust the first proxy if behind a proxy
 app.set('trust proxy', 1);
@@ -82,7 +83,7 @@ app.get('/test-cors-redirect', (req, res) => {
   res.redirect('https://example.com');
 });
 
-app.use('/auth', authRoutes); // Your authentication routes
+app.use('/auth', authRoutes); // Your authentication routes (including Google)
 app.use('/api/user', userRoutes); // Your user routes
 
 // Default Route
@@ -119,4 +120,3 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
-

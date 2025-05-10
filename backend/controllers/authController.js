@@ -1,3 +1,4 @@
+
 const crypto = require('crypto');
 const axios = require('axios');
 const { clientId, clientSecret, redirectUri, authorizationUrl, tokenUrl } = require('../config/myAnimeListOAuth.js');
@@ -39,8 +40,6 @@ const callback = async (req, res) => {
     console.error('Code has expired');
     return res.status(400).send('Authentication Error: Code Expired');
   }
-
-  let authSuccess = false; // Flag to track successful authentication
 
   try {
     req.session.callbackProcessed = true;
@@ -92,12 +91,7 @@ const callback = async (req, res) => {
     const refreshToken = tokenResponse.data.refresh_token;
     const tokenExpiry = Date.now() + (tokenResponse.data.expires_in * 1000);
 
-    // Store the access token in the session
-    req.session.malAccessToken = accessToken;
-    req.session.malRefreshToken = refreshToken; // You might want to store the refresh token as well
-    req.session.malTokenExpiry = tokenExpiry;
-
-    // --- START: Fetch MyAnimeList User Info and Link/Create User ---
+    // --- START: Fetch MyAnimeList User Info and Link to Google User ---
     try {
       const malUserResponse = await axios.get('https://api.myanimelist.net/v2/users/@me', {
         headers: {
@@ -105,53 +99,51 @@ const callback = async (req, res) => {
         },
       });
 
-      const malUserId = malUserResponse.data.id;
       const malUsername = malUserResponse.data.name;
 
-      const existingUser = await User.findOne({ malId: malUserId });
+      // Get the logged-in Google user's ID from the session
+      const googleUserId = req.session.userId;
 
-      let user;
-      if (existingUser) {
-        existingUser.malAccessToken = accessToken;
-        existingUser.malRefreshToken = refreshToken;
-        existingUser.malTokenExpiry = tokenExpiry;
-        await existingUser.save();
-        user = existingUser;
+      if (googleUserId) {
+        const user = await User.findById(googleUserId);
+
+        if (user) {
+          user.malAccessToken = accessToken;
+          user.malRefreshToken = refreshToken;
+          user.malTokenExpiry = tokenExpiry;
+          user.malUsername = malUsername;
+          user.malAuthenticated = true;
+          await user.save();
+
+          req.session.malUsername = user.malUsername;
+          req.session.malAuthenticated = true;
+
+          await new Promise((resolve, reject) => {
+            req.session.save((err) => {
+              if (err) {
+                console.error('Error saving session after MAL connect:', err);
+                reject(err);
+              } else {
+                resolve();
+              }
+            });
+          });
+
+          return res.redirect('http://localhost:5173/dashboard'); // Redirect to dashboard
+        } else {
+          console.error('Google user not found in database:', googleUserId);
+          return res.status(404).send('Google user not found.');
+        }
       } else {
-        const newUser = new User({
-          malId: malUserId,
-          malUsername: malUsername,
-          malAccessToken: accessToken,
-          malRefreshToken: refreshToken,
-          malTokenExpiry: tokenExpiry,
-        });
-        await newUser.save();
-        user = newUser;
+        console.error('No Google user ID found in session during MAL callback.');
+        return res.status(401).send('Not authenticated with Google.');
       }
-
-      req.session.userId = user._id;
-      req.session.malUsername = user.malUsername; // Optional: store other user info in session
-      req.session.malAuthenticated = true;
-
-      await new Promise((resolve, reject) => {
-        req.session.save((err) => {
-          if (err) {
-            console.error('Error saving session after setting userId:', err);
-            reject(err);
-          } else {
-            resolve();
-          }
-        });
-      });
-
-      authSuccess = true; // Set flag for successful auth
-      return res.redirect('http://localhost:5173');
 
     } catch (malApiError) {
       console.error('Error fetching MyAnimeList user info:', malApiError.response?.data || malApiError.message);
       return res.status(500).send('Authentication Error: Could not fetch MyAnimeList user data.');
     }
-    // --- END: Fetch MyAnimeList User Info and Link/Create User ---
+    // --- END: Fetch MyAnimeList User Info and Link to Google User ---
 
   } catch (error) {
     console.error('❌ Error exchanging code for token:', error.response?.data || error.message);
@@ -180,44 +172,38 @@ const login = async (req, res) => {
     const codeVerifier = generateCodeVerifier();
     const codeChallenge = codeVerifier; // Plain method
 
-    req.session.regenerate((err) => {
-      if (err) {
-        console.error('Error regenerating session:', err);
-        return res.status(500).send('Error initializing authentication');
+    // DO NOT REGENERATE SESSION HERE
+    req.session.state = state;
+    req.session.codeVerifier = codeVerifier;
+    req.session.authStartTime = Date.now();
+    req.session.codeUsed = false;
+    req.session.callbackProcessed = false;
+
+    req.session.save((saveErr) => {
+      if (saveErr) {
+        console.error('Error saving session:', saveErr);
+        return res.status(500).send('Error saving session before redirect');
       }
 
-      req.session.state = state;
-      req.session.codeVerifier = codeVerifier;
-      req.session.authStartTime = Date.now();
-      req.session.codeUsed = false;
-      req.session.callbackProcessed = false;
+      const authUrl = new URL(authorizationUrl);
+      authUrl.searchParams.append('response_type', 'code');
+      authUrl.searchParams.append('client_id', clientId);
+      authUrl.searchParams.append('state', state);
+      authUrl.searchParams.append('code_challenge', codeChallenge);
+      authUrl.searchParams.append('code_challenge_method', 'plain');
+      authUrl.searchParams.append('redirect_uri', redirectUri);
+      authUrl.searchParams.append('scope', 'profile email'); // Added scope here
 
-      req.session.save((saveErr) => {
-        if (saveErr) {
-          console.error('Error saving session:', saveErr);
-          return res.status(500).send('Error saving session before redirect');
-        }
+      console.log('=== Debug Login (Using PLAIN PKCE) ===');
+      console.log('Session ID:', req.sessionID);
+      // Removed logging of state, codeVerifier, and codeChallenge
+      console.log('Auth Start Time:', req.session.authStartTime);
+      console.log('Constructed Auth URL:', authUrl.toString()); // Added logging of the constructed URL
+      console.log('======================================');
 
-        const authUrl = new URL(authorizationUrl);
-        authUrl.searchParams.append('response_type', 'code');
-        authUrl.searchParams.append('client_id', clientId);
-        authUrl.searchParams.append('state', state);
-        authUrl.searchParams.append('code_challenge', codeChallenge);
-        authUrl.searchParams.append('code_challenge_method', 'plain');
-        authUrl.searchParams.append('redirect_uri', redirectUri);
-        authUrl.searchParams.append('scope', 'profile email'); // Added scope here
-
-        console.log('=== Debug Login (Using PLAIN PKCE) ===');
-        console.log('Session ID:', req.sessionID);
-        // Removed logging of state, codeVerifier, and codeChallenge
-        console.log('Auth Start Time:', req.session.authStartTime);
-        console.log('Constructed Auth URL:', authUrl.toString()); // Added logging of the constructed URL
-        console.log('======================================');
-
-        // Manually set the Access-Control-Allow-Origin header
-        res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
-        res.redirect(authUrl.toString());
-      });
+      // Manually set the Access-Control-Allow-Origin header
+      res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
+      res.redirect(authUrl.toString());
     });
   } catch (error) {
     console.error('Unexpected error in login route:', error);

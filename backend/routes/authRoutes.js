@@ -7,7 +7,16 @@ const googleAuthController = require('../controllers/googleAuthController');
 // ============================
 // MyAnimeList OAuth Routes
 // ============================
-router.get('/login', authController.login);
+router.get('/login', (req, res, next) => {
+  if (!req.session.userId) {
+    // Explicitly set the session cookie if no userId is found
+    res.setHeader('Set-Cookie', [`connect.sid=${req.sessionID}; Path=/; HttpOnly; SameSite=Lax`]);
+    console.log('⚠️ Explicitly setting cookie on /auth/login:', req.sessionID);
+  } else {
+    console.log('✅ Session found on /auth/login:', req.session.userId);
+  }
+  next();
+}, authController.login);
 router.get('/callback', authController.callback);
 
 // ============================

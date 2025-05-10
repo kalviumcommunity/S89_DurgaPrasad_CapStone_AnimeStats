@@ -1,4 +1,3 @@
-// googleAuthController.js
 const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
 
@@ -20,7 +19,7 @@ const googleLogin = (req, res) => {
   const url = oAuth2Client.generateAuthUrl({
     access_type: 'online',
     scope: ['profile', 'email'],
-    redirect_uri: googleRedirectUri, // 🚀 Ensure redirect_uri is correctly set here
+    redirect_uri: googleRedirectUri,
   });
   res.redirect(url);
 };
@@ -74,26 +73,49 @@ const googleCallback = async (req, res) => {
       }).save();
     }
 
-    // ✅ Set session with complete login info
+    //  Set session with complete login info
     req.session.userId = user._id;
     req.session.isAuthenticated = true;
     req.session.googleName = name;
     req.session.googleEmail = email;
     req.session.googlePicture = picture;
 
-    // ✅ Save session and redirect to frontend dashboard
-    req.session.save(err => {
-      if (err) {
-        console.error(' Session save error:', err);
-        return res.status(500).send('Session error');
-      }
-      console.log('Session saved:', {
-        userId: req.session.userId,
-        googleName: req.session.googleName,
-        googleEmail: req.session.googleEmail,
+    // Check if the user has already connected their MyAnimeList account
+    if (!user.malUsername) {
+      // If not connected, redirect to MyAnimeList login to initiate the connection
+      console.log('Session ID before save (MAL redirect):', req.sessionID); // Added log
+      await new Promise((resolve, reject) => {
+        req.session.save(err => {
+          if (err) {
+            console.error('❌ Google Session save error (redirecting to MAL):', err);
+            reject(err);
+          } else {
+            console.log('💾 Google session saved successfully (before frontend redirect). Session ID:', req.session.id);
+            // Explicitly set the session cookie
+            res.setHeader('Set-Cookie', [`connect.sid=${req.sessionID}; Path=/; HttpOnly; SameSite=Lax`]);
+            resolve();
+          }
+        });
+      });
+      return res.redirect(`${FRONTEND_URL}/link-mal`); // Redirect to the frontend's /link-mal route
+    } else {
+      // If already connected, redirect to the dashboard
+      console.log('Session ID before save (dashboard redirect):', req.sessionID); // Added log
+      await new Promise((resolve, reject) => {
+        req.session.save(err => {
+          if (err) {
+            console.error('❌ Google Session save error (redirecting to dashboard):', err);
+            reject(err);
+          } else {
+            console.log('💾 Google session saved successfully (before dashboard redirect). Session ID:', req.session.id);
+            // Explicitly set the session cookie
+            res.setHeader('Set-Cookie', [`connect.sid=${req.sessionID}; Path=/; HttpOnly; SameSite=Lax`]);
+            resolve();
+          }
+        });
       });
       return res.redirect(`${FRONTEND_URL}/dashboard`);
-    });
+    }
 
   } catch (error) {
     console.error('Google OAuth error:', error);
