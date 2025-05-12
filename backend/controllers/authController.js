@@ -15,7 +15,7 @@ const localSignup = async (req, res) => {
   }
 
   try {
-    // Check if username or email already exists
+    // Check if username or email already exists  
     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
 
     if (existingUser) {
@@ -34,7 +34,7 @@ const localSignup = async (req, res) => {
 
     const savedUser = await newUser.save();
 
-    // Log the user in after signup (optional)
+    // Log the user in after signup 
     req.session.userId = savedUser._id;
     req.session.isAuthenticated = true;
     req.session.save((err) => {
@@ -75,17 +75,11 @@ const localLogin = async (req, res) => {
       req.session.isAuthenticated = true;
 
       if (!user.malAuthenticated) {
-        return res.redirect('/auth/login'); 
+        return res.status(200).json({ message: 'Login successful. Redirecting to connect MyAnimeList.', redirectTo: '/auth/login' });
       } else {
         req.session.malAuthenticated = true;
         req.session.malUsername = user.malUsername || null;
-        req.session.save((err) => {
-          if (err) {
-            console.error('Error saving session during login:', err);
-            return res.status(500).json({ message: 'Error saving session.' });
-          }
-          return res.redirect('/dashboard'); 
-        });
+        return res.status(200).json({ message: 'Login successful. Redirecting to dashboard.', redirectTo: '/dashboard' });
       }
     } else {
       return res.status(401).json({ message: 'Invalid credentials.' });
