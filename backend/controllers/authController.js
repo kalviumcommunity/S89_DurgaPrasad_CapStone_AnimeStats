@@ -34,7 +34,7 @@ const localSignup = async (req, res) => {
 
     const savedUser = await newUser.save();
 
-    // Log the user in after signup (optional)
+    // Log the user in after signup 
     req.session.userId = savedUser._id;
     req.session.isAuthenticated = true;
     req.session.save((err) => {
