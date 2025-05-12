@@ -1,0 +1,241 @@
+/* HomePage.css */
+.home-page {
+  background-color: #181818;
+  color: #e0e0e0;
+  min-height: 100vh; /* Ensure full viewport height */
+  padding-top: 60px; /* Adjust padding to account for fixed navbar height */
+}
+
+.home-page-content {
+  padding: 20px;
+}
+
+.search-bar-container {
+  /* Styles for search bar */
+  display: flex;
+  align-items: center;
+  background-color: #282828;
+  border-radius: 4px;
+  padding: 8px 15px;
+  margin-bottom: 20px;
+}
+
+.search-icon {
+  color: #bdbdbd;
+  margin-right: 10px;
+}
+
+.search-bar-container input[type="text"] {
+  background: none;
+  border: none;
+  color: #e0e0e0;
+  width: 100%;
+  font-size: 1em;
+}
+
+.search-bar-container input[type="text"]::placeholder {
+  color: #757575;
+}
+
+.genre-filter {
+  margin-bottom: 25px;
+}
+
+.genre-title {
+  font-size: 1.2em;
+  margin-bottom: 10px;
+}
+
+.genre-buttons {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto; /* Enable horizontal scrolling for genres */
+  padding-bottom: 10px;
+}
+
+.genre-button {
+  background-color: #333333;
+  color: #e0e0e0;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 15px;
+  cursor: pointer;
+  font-size: 0.9em;
+  white-space: nowrap;
+  transition: background-color 0.3s ease;
+}
+
+.genre-button:hover {
+  background-color: #444444;
+}
+
+.section-title {
+  font-size: 1.4em;
+  margin-bottom: 15px;
+}
+
+/* Styles for anime carousel */
+.top-airing .anime-carousel {
+  display: flex;
+  overflow-x: auto;
+  gap: 15px;
+  padding: 10px 0;
+  margin-bottom: 20px;
+}
+
+.top-airing .anime-card {
+  position: relative;
+  width: 200px;
+  min-width: 200px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease-in-out;
+}
+
+.top-airing .anime-card:hover {
+  transform: scale(1.05);
+}
+
+.top-airing .anime-card img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.top-airing .anime-card .anime-title {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px;
+  text-align: center;
+  font-size: 0.9em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: opacity 0.3s ease;
+  opacity: 1;
+}
+
+.top-airing .anime-card:hover .anime-title {
+  opacity: 0;
+}
+
+.top-airing .anime-card .hover-info {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 15px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 0.9em;
+}
+
+.top-airing .anime-card:hover .hover-info {
+  opacity: 1;
+}
+
+.top-airing .hover-info h3 {
+  margin-bottom: 10px;
+  font-size: 1.1em;
+}
+
+.view-more-button {
+  background-color: #2e51a2;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s ease;
+}
+
+.view-more-button:hover {
+  background-color: #3969c9;
+}
+
+/* Styles for top rated anime grid (you'll populate this later) */
+.top-rated .anime-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.top-rated .anime-card {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease-in-out;
+}
+
+.top-rated .anime-card:hover {
+  transform: scale(1.05);
+}
+
+.top-rated .anime-card img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.top-rated .anime-card .anime-title {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px;
+  text-align: center;
+  font-size: 0.9em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background-color 0.3s ease;
+}
+
+.top-rated .anime-card:hover .anime-title {
+  background-color: rgba(0, 0, 0, 0.9);
+}
+
+.top-rated .anime-card .hover-info {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 15px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  font-size: 0.9em;
+}
+
+.top-rated .anime-card:hover .hover-info {
+  opacity: 1;
+}
+
+.top-rated .hover-info h3 {
+  margin-bottom: 10px;
+  font-size: 1.1em;
+}

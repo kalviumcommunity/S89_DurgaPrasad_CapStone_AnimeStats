@@ -1,9 +1,101 @@
-
 const crypto = require('crypto');
 const axios = require('axios');
+const bcrypt = require('bcrypt');
 const { clientId, clientSecret, redirectUri, authorizationUrl, tokenUrl } = require('../config/myAnimeListOAuth.js');
 const { generateCodeVerifier } = require('../utils/authUtils');
 const User = require("../models/User.js");
+
+const saltRounds = 10;
+
+const localSignup = async (req, res) => {
+  const { username, email, password } = req.body;
+
+  if (!username || !email || !password) {
+    return res.status(400).json({ message: 'Please provide username, email, and password.' });
+  }
+
+  try {
+    // Check if username or email already exists
+    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+
+    if (existingUser) {
+      return res.status(409).json({ message: 'Username or email already exists.' });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // Create a new user
+    const newUser = new User({
+      username,
+      email,
+      password: hashedPassword,
+    });
+
+    const savedUser = await newUser.save();
+
+    // Log the user in after signup (optional)
+    req.session.userId = savedUser._id;
+    req.session.isAuthenticated = true;
+    req.session.save((err) => {
+      if (err) {
+        console.error('Error saving session after signup:', err);
+        return res.status(500).json({ message: 'Error saving session.' });
+      }
+      return res.status(201).json({ message: 'Signup successful. Redirecting...', user: { _id: savedUser._id, username: savedUser.username, email: savedUser.email } });
+    });
+
+  } catch (error) {
+    console.error('Error during local signup:', error);
+    return res.status(500).json({ message: 'Error creating user.' });
+  }
+};
+
+const localLogin = async (req, res) => {
+  const { identifier, password } = req.body;
+
+  if (!identifier || !password) {
+    return res.status(400).json({ message: 'Please provide username/email and password.' });
+  }
+
+  try {
+    // Find user by username or email
+    const user = await User.findOne({ $or: [{ username: identifier }, { email: identifier }] });
+
+    if (!user || !user.password) {
+      return res.status(401).json({ message: 'Invalid credentials.' });
+    }
+
+    // Compare password
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (passwordMatch) {
+      // Login successful, set session
+      req.session.userId = user._id;
+      req.session.isAuthenticated = true;
+
+      if (!user.malAuthenticated) {
+        return res.redirect('/auth/login'); 
+      } else {
+        req.session.malAuthenticated = true;
+        req.session.malUsername = user.malUsername || null;
+        req.session.save((err) => {
+          if (err) {
+            console.error('Error saving session during login:', err);
+            return res.status(500).json({ message: 'Error saving session.' });
+          }
+          return res.redirect('/dashboard'); 
+        });
+      }
+    } else {
+      return res.status(401).json({ message: 'Invalid credentials.' });
+    }
+
+  } catch (error) {
+    console.error('Error during local login:', error);
+    return res.status(500).json({ message: 'Error during login.' });
+  }
+};
 
 const callback = async (req, res) => {
   const { code, state } = req.query;
@@ -85,13 +177,13 @@ const callback = async (req, res) => {
       return res.status(400).send(`Authentication Error: ${tokenResponse.data.error_description || tokenResponse.data.error}`);
     }
 
-    console.log('✅ Access Token received');
+    console.log(' Access Token received');
 
     const accessToken = tokenResponse.data.access_token;
     const refreshToken = tokenResponse.data.refresh_token;
     const tokenExpiry = Date.now() + (tokenResponse.data.expires_in * 1000);
 
-    // --- START: Fetch MyAnimeList User Info and Link to Google User ---
+    // --- START: Fetch MyAnimeList User Info and Link to User ---
     try {
       const malUserResponse = await axios.get('https://api.myanimelist.net/v2/users/@me', {
         headers: {
@@ -101,11 +193,11 @@ const callback = async (req, res) => {
 
       const malUsername = malUserResponse.data.name;
 
-      // Get the logged-in Google user's ID from the session
-      const googleUserId = req.session.userId;
+      // Get the logged-in user's ID from the session (could be Google or local)
+      const userId = req.session.userId;
 
-      if (googleUserId) {
-        const user = await User.findById(googleUserId);
+      if (userId) {
+        const user = await User.findById(userId);
 
         if (user) {
           user.malAccessToken = accessToken;
@@ -129,24 +221,24 @@ const callback = async (req, res) => {
             });
           });
 
-          return res.redirect('http://localhost:5173/dashboard'); // Redirect to dashboard
+          return res.redirect('http://localhost:5173/dashboard');
         } else {
-          console.error('Google user not found in database:', googleUserId);
-          return res.status(404).send('Google user not found.');
+          console.error('User not found in database:', userId);
+          return res.status(404).send('User not found.');
         }
       } else {
-        console.error('No Google user ID found in session during MAL callback.');
-        return res.status(401).send('Not authenticated with Google.');
+        console.error('No user ID found in session during MAL callback.');
+        return res.status(401).send('Not authenticated.');
       }
 
     } catch (malApiError) {
       console.error('Error fetching MyAnimeList user info:', malApiError.response?.data || malApiError.message);
       return res.status(500).send('Authentication Error: Could not fetch MyAnimeList user data.');
     }
-    // --- END: Fetch MyAnimeList User Info and Link to Google User ---
+    // --- END: Fetch MyAnimeList User Info and Link to User ---
 
   } catch (error) {
-    console.error('❌ Error exchanging code for token:', error.response?.data || error.message);
+    console.error(' Error exchanging code for token:', error.response?.data || error.message);
     req.session.destroy((err) => console.error('Error destroying session:', err));
     return;
   } finally {
@@ -161,7 +253,7 @@ const callback = async (req, res) => {
         console.error('Error saving session after cleanup:', saveErr);
         return res.status(500).send('Authentication Error: Error saving session');
       }
-      // No need to res.send here as res.redirect or res.status has likely been called
+
     });
   }
 };
@@ -192,16 +284,16 @@ const login = async (req, res) => {
       authUrl.searchParams.append('code_challenge', codeChallenge);
       authUrl.searchParams.append('code_challenge_method', 'plain');
       authUrl.searchParams.append('redirect_uri', redirectUri);
-      authUrl.searchParams.append('scope', 'profile email'); // Added scope here
+      authUrl.searchParams.append('scope', 'profile email');
 
       console.log('=== Debug Login (Using PLAIN PKCE) ===');
       console.log('Session ID:', req.sessionID);
-      // Removed logging of state, codeVerifier, and codeChallenge
+
       console.log('Auth Start Time:', req.session.authStartTime);
-      console.log('Constructed Auth URL:', authUrl.toString()); // Added logging of the constructed URL
+      console.log('Constructed Auth URL:', authUrl.toString());
       console.log('======================================');
 
-      // Manually set the Access-Control-Allow-Origin header
+
       res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
       res.redirect(authUrl.toString());
     });
@@ -211,4 +303,4 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { login, callback };
+module.exports = { login, callback, localSignup, localLogin };
