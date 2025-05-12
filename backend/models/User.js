@@ -37,7 +37,7 @@ const UserSchema = new mongoose.Schema({
 
   malId: {
     type: String,
-    sparse: true, // Removed 'unique: true' here
+    sparse: true,
   },
   malUsername: {
     type: String,
@@ -48,6 +48,15 @@ const UserSchema = new mongoose.Schema({
   malTokenExpiry: Number,
 
   watchlist: [watchlistEntrySchema],
+
+  totalAnimeCompleted: { type: Number, default: 0 },
+  episodesWatched: { type: Number, default: 0 },
+  watchHistory: [{
+    animeId: Number,
+    dateCompleted: Date,
+    rating: Number,
+  }],
+
 
 }, { timestamps: true });
 
