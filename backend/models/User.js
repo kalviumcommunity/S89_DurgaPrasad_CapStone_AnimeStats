@@ -14,12 +14,14 @@ const UserSchema = new mongoose.Schema({
     unique: true,
     trim: true,
     lowercase: true,
+    sparse: true,
   },
   email: {
     type: String,
     unique: true,
     trim: true,
     lowercase: true,
+    sparse: true,
   },
   password: {
     type: String,
@@ -35,8 +37,7 @@ const UserSchema = new mongoose.Schema({
 
   malId: {
     type: String,
-    unique: true,
-    sparse: true,
+    sparse: true, // Removed 'unique: true' here
   },
   malUsername: {
     type: String,
