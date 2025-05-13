@@ -1,26 +1,33 @@
 /* Navbar.css */
 
 .navbar {
-  background-color: #181818; /* Dark background */
-  color: #e0e0e0; /* Light text */
-  padding: 15px 20px;
+  background-color: #181818;
+  color: #e0e0e0;
+  padding: 10px 20px;
   border-bottom: 1px solid #282828;
-  position: sticky; /* Make it stick to the top */
+  position: sticky;
   top: 0;
-  z-index: 100; /* Ensure it's above other content */
+  z-index: 100;
 }
 
 .navbar-container {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 1200px; /* Optional: for a fixed width layout */
-  margin: 0 auto; /* Center the navbar content */
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.back-button {
+  color: #e0e0e0;
+  font-size: 1.2em;
+  cursor: pointer;
+  border: none;
+  background: none;
 }
 
 .logo {
-  font-size: 1.5em;
-  margin-right: 20px;
+  font-size: 1.3em;
 }
 
 .navbar-links {
@@ -37,60 +44,8 @@
   border: none;
   background: none;
   cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.navbar-links a:hover,
-.navbar-links button:hover {
-  color: #64b5f6; /* Highlight on hover */
-}
-
-.back-button {
-  background: none;
-  border: none;
-  color: #e0e0e0;
-  font-size: 1.2em;
-  cursor: pointer;
-  margin-right: 15px;
-  transition: color 0.3s ease;
-}
-
-.back-button:hover {
-  color: #f44336; /* Highlight on hover (red for back) */
 }
 
 .user-icon {
-  font-size: 1.5em;
-  transition: color 0.3s ease;
-}
-
-.user-icon:hover {
-  color: #ffca28; /* Highlight on hover (yellow/gold for user) */
-}
-
-/* Responsive adjustments (optional) */
-@media (max-width: 768px) {
-  .navbar-container {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .logo {
-    margin-bottom: 10px;
-  }
-
-  .navbar-links {
-    width: 100%;
-    justify-content: space-around;
-    margin-top: 10px;
-  }
-
-  .navbar-links a,
-  .navbar-links button {
-    margin-left: 0;
-  }
-
-  .back-button {
-    margin-bottom: 10px;
-  }
+  font-size: 1.3em;
 }
