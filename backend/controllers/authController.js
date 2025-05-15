@@ -25,7 +25,7 @@ const localSignup = async (req, res) => {
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Create a new user
+    // Create a new user with password
     const newUser = new User({
       username,
       email,
