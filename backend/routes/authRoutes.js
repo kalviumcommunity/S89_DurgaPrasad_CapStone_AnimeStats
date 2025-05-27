@@ -11,7 +11,7 @@ router.post('/local/login', authController.localLogin);
 
 
 router.get('/login', (req, res, next) => {
-  if (!req.session.userId) {
+  if (!req.session.userId) {a
     
     res.setHeader('Set-Cookie', [`connect.sid=${req.sessionID}; Path=/; HttpOnly; SameSite=Lax`]);
     console.log(' Explicitly setting cookie on /auth/login:', req.sessionID);
