@@ -4,20 +4,27 @@
   color: #e0e0e0;
   min-height: 100vh; /* Ensure full viewport height */
   padding-top: 60px; /* Adjust padding to account for fixed navbar height */
+  /* Remove overflow-x: hidden here, as we've moved it to html, body, and #root */
+  /* max-width: 100% is important for content inside */
+  max-width: 100vw; /* Ensure it fits within the viewport width */
+  box-sizing: border-box; /* Include padding in width calculation */
 }
 
 .home-page-content {
   padding: 20px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .search-bar-container {
-  /* Styles for search bar */
   display: flex;
   align-items: center;
   background-color: #282828;
   border-radius: 4px;
   padding: 8px 15px;
   margin-bottom: 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .search-icon {
@@ -39,6 +46,8 @@
 
 .genre-filter {
   margin-bottom: 25px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .genre-title {
@@ -48,9 +57,11 @@
 
 .genre-buttons {
   display: flex;
+  flex-wrap: wrap; /* Allow genre buttons to wrap to the next line */
   gap: 10px;
-  overflow-x: auto; /* Enable horizontal scrolling for genres */
   padding-bottom: 10px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .genre-button {
@@ -61,8 +72,8 @@
   padding: 8px 15px;
   cursor: pointer;
   font-size: 0.9em;
-  white-space: nowrap;
   transition: background-color 0.3s ease;
+  flex-shrink: 0; /* Prevents buttons from shrinking too much */
 }
 
 .genre-button:hover {
@@ -77,20 +88,24 @@
 /* Styles for anime carousel */
 .top-airing .anime-carousel {
   display: flex;
-  overflow-x: auto;
+  overflow-x: auto; /* THIS IS THE ONLY PLACE THE HORIZONTAL SCROLL IS INTENDED */
   gap: 15px;
   padding: 10px 0;
   margin-bottom: 20px;
+  white-space: nowrap; /* Ensures anime cards stay in one line for scrolling */
+  max-width: 100%; /* Important: Container shouldn't exceed its parent */
+  box-sizing: border-box;
 }
 
 .top-airing .anime-card {
   position: relative;
   width: 200px;
-  min-width: 200px;
+  min-width: 200px; /* Cards maintain their fixed width */
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   transition: transform 0.2s ease-in-out;
+  flex-shrink: 0; /* Prevents individual cards from shrinking */
 }
 
 .top-airing .anime-card:hover {
@@ -161,18 +176,22 @@
   cursor: pointer;
   font-size: 1em;
   transition: background-color 0.3s ease;
+  display: block;
+  margin: 20px auto;
 }
 
 .view-more-button:hover {
   background-color: #3969c9;
 }
 
-/* Styles for top rated anime grid (you'll populate this later) */
+/* Styles for top rated anime grid */
 .top-rated .anime-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 15px;
   margin-bottom: 20px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .top-rated .anime-card {
@@ -238,4 +257,75 @@
 .top-rated .hover-info h3 {
   margin-bottom: 10px;
   font-size: 1.1em;
+}
+
+/* --- Responsive Adjustments --- */
+/* Ensure all responsive widths are handled correctly */
+@media (max-width: 1024px) {
+  .home-page-content {
+    padding: 15px;
+  }
+  .top-airing .anime-card {
+    width: 180px;
+    min-width: 180px;
+  }
+  .top-rated .anime-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .home-page-content {
+    padding: 10px;
+  }
+  .search-bar-container {
+    padding: 6px 10px;
+  }
+  .genre-buttons {
+    gap: 8px;
+  }
+  .genre-button {
+    padding: 6px 12px;
+    font-size: 0.85em;
+  }
+  .section-title {
+    font-size: 1.3em;
+  }
+  .top-airing .anime-card {
+    width: 160px;
+    min-width: 160px;
+  }
+  .top-rated .anime-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+  .view-more-button {
+    padding: 8px 15px;
+    font-size: 0.9em;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-page {
+    padding-top: 50px;
+  }
+  .home-page-content {
+    padding: 5px;
+  }
+  .section-title {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+  }
+  .top-airing .anime-card {
+    width: 140px;
+    min-width: 140px;
+  }
+  .top-airing .anime-card .anime-title,
+  .top-airing .hover-info,
+  .top-rated .anime-card .anime-title,
+  .top-rated .hover-info {
+    font-size: 0.8em;
+  }
+  .top-rated .anime-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
 }
