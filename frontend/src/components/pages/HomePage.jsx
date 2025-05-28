@@ -1,4 +1,4 @@
-// homepage
+// Homepage.jsx
 import React, { useState, useEffect } from 'react';
 import Navbar from '../../Navbar';
 import '../HomePage.css';
