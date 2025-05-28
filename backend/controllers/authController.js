@@ -1,4 +1,4 @@
-// authController.js
+
 const crypto = require('crypto');
 const axios = require('axios');
 const bcrypt = require('bcrypt');
