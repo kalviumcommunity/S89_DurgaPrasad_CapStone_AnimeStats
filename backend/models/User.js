@@ -1,3 +1,4 @@
+// user.js
 const mongoose = require('mongoose');
 
 const watchlistEntrySchema = new mongoose.Schema({
