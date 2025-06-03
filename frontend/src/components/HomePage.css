@@ -1,13 +1,26 @@
 /* HomePage.css */
+
+/* Global Overrides (ensure these are applied - best in index.css or App.css) */
+/*
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  width: 100%;
+}
+#root {
+  width: 100%;
+  overflow-x: hidden;
+}
+*/
+
 .home-page {
   background-color: #181818;
   color: #e0e0e0;
-  min-height: 100vh; /* Ensure full viewport height */
-  padding-top: 60px; /* Adjust padding to account for fixed navbar height */
-  /* Remove overflow-x: hidden here, as we've moved it to html, body, and #root */
-  /* max-width: 100% is important for content inside */
+  min-height: 100vh;
+  padding-top: 60px; /* Adjust for fixed navbar height */
   max-width: 100vw; /* Ensure it fits within the viewport width */
-  box-sizing: border-box; /* Include padding in width calculation */
+  box-sizing: border-box;
 }
 
 .home-page-content {
@@ -73,7 +86,7 @@
   cursor: pointer;
   font-size: 0.9em;
   transition: background-color 0.3s ease;
-  flex-shrink: 0; /* Prevents buttons from shrinking too much */
+  flex-shrink: 0;
 }
 
 .genre-button:hover {
@@ -85,40 +98,84 @@
   margin-bottom: 15px;
 }
 
-/* Styles for anime carousel */
-.top-airing .anime-carousel {
-  display: flex;
-  overflow-x: auto; /* THIS IS THE ONLY PLACE THE HORIZONTAL SCROLL IS INTENDED */
-  gap: 15px;
-  padding: 10px 0;
-  margin-bottom: 20px;
-  white-space: nowrap; /* Ensures anime cards stay in one line for scrolling */
-  max-width: 100%; /* Important: Container shouldn't exceed its parent */
-  box-sizing: border-box;
+/* --- Carousel Specific Styles --- */
+.carousel-fade-wrapper {
+  position: relative; /* Essential for positioning fade overlays */
+  overflow: hidden; /* Ensures that the fade overlays are clipped by this wrapper */
+  margin-bottom: 20px; /* Match previous carousel margin-bottom */
 }
 
-.top-airing .anime-card {
+/* Common styles for both horizontally scrollable containers */
+/* This combines .top-airing .anime-carousel and what .top-rated .anime-grid should be */
+.anime-carousel, /* For Top Airing */
+.anime-grid { /* For Top Rated - will now behave like a carousel */
+  display: flex;
+  overflow-x: auto; /* THIS IS WHERE THE HORIZONTAL SCROLL IS INTENDED */
+  gap: 15px;
+  padding: 10px 0; /* Padding for the scrollable content */
+  white-space: nowrap; /* Ensures anime cards stay in one line for scrolling */
+  box-sizing: border-box; /* Include padding in width calculation */
+  scroll-snap-type: x mandatory; /* Optional: for smoother snapping to cards */
+  -webkit-overflow-scrolling: touch; /* Smoother scrolling on iOS */
+
+  /* HIDE SCROLLBAR STYLES */
+  /* Hide scrollbar for Chrome, Safari, Opera */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  /* Hide scrollbar for IE, Edge, Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.fade-overlay {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 60px; /* Width of the fade effect */
+  pointer-events: none; /* Allows clicks to pass through to content */
+  z-index: 1; /* Ensure it's above the carousel content */
+  opacity: 1; /* Default opacity */
+  transition: opacity 0.3s ease-out; /* Smooth transition for fade in/out */
+}
+
+.fade-left {
+  left: 0;
+  background: linear-gradient(to right, #181818 20%, rgba(24, 24, 24, 0)); /* Matches background-color */
+}
+
+.fade-right {
+  right: 0;
+  background: linear-gradient(to left, #181818 20%, rgba(24, 24, 24, 0)); /* Matches background-color */
+}
+
+/* Common styling for individual anime cards in both carousels */
+.anime-card { /* Now applies to both .top-airing .anime-card and .top-rated .anime-card */
   position: relative;
-  width: 200px;
-  min-width: 200px; /* Cards maintain their fixed width */
+  width: 200px; /* Fixed width for each card */
+  min-width: 200px; /* Ensures they don't shrink below this size */
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   transition: transform 0.2s ease-in-out;
-  flex-shrink: 0; /* Prevents individual cards from shrinking */
+  flex-shrink: 0; /* Crucial: Prevents cards from shrinking in a flex container */
+  scroll-snap-align: start; /* For optional scroll snapping */
 }
 
-.top-airing .anime-card:hover {
+.anime-card:hover {
   transform: scale(1.05);
 }
 
-.top-airing .anime-card img {
+.anime-card img {
   width: 100%;
-  height: auto;
+  height: auto; /* Allow height to adjust based on aspect ratio */
+  aspect-ratio: 2/3; /* Common poster aspect ratio, or use fixed height like 300px */
+  object-fit: cover;
   display: block;
 }
 
-.top-airing .anime-card .anime-title {
+/* Common styling for anime title visible below the image */
+.anime-card .anime-title {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -131,15 +188,17 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: opacity 0.3s ease;
-  opacity: 1;
+  transition: opacity 0.3s ease, background-color 0.3s ease; /* Add background-color transition */
+  opacity: 1; /* Visible by default */
 }
 
-.top-airing .anime-card:hover .anime-title {
-  opacity: 0;
+.anime-card:hover .anime-title {
+  opacity: 0; /* Hides title on hover */
+  /* background-color change will be handled by .hover-info if it covers completely */
 }
 
-.top-airing .anime-card .hover-info {
+/* Common styling for hover info overlay */
+.anime-card .hover-info {
   position: absolute;
   top: 0;
   left: 0;
@@ -148,25 +207,33 @@
   background-color: rgba(0, 0, 0, 0.8);
   color: white;
   padding: 15px;
-  opacity: 0;
+  opacity: 0; /* Hidden by default */
   transition: opacity 0.3s ease;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
+  align-items: center; /* Center horizontally in hover info */
   text-align: center;
   font-size: 0.9em;
+  box-sizing: border-box; /* Ensures padding is included in width/height */
+  white-space: normal; /* Allow text to wrap within hover info */
 }
 
-.top-airing .anime-card:hover .hover-info {
-  opacity: 1;
+.anime-card:hover .hover-info {
+  opacity: 1; /* Shows hover info on hover */
 }
 
-.top-airing .hover-info h3 {
+.anime-card .hover-info h3 {
   margin-bottom: 10px;
   font-size: 1.1em;
 }
 
+.anime-card .hover-info p {
+  margin-bottom: 5px; /* Spacing between synopsis and score */
+  line-height: 1.4;
+}
+
+/* View More Button (common style) */
 .view-more-button {
   background-color: #2e51a2;
   color: white;
@@ -177,100 +244,23 @@
   font-size: 1em;
   transition: background-color 0.3s ease;
   display: block;
-  margin: 20px auto;
+  margin: 20px auto; /* Centers the button */
 }
 
 .view-more-button:hover {
   background-color: #3969c9;
 }
 
-/* Styles for top rated anime grid */
-.top-rated .anime-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 15px;
-  margin-bottom: 20px;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-.top-rated .anime-card {
-  position: relative;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  transition: transform 0.2s ease-in-out;
-}
-
-.top-rated .anime-card:hover {
-  transform: scale(1.05);
-}
-
-.top-rated .anime-card img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.top-rated .anime-card .anime-title {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
-  padding: 8px;
-  text-align: center;
-  font-size: 0.9em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: background-color 0.3s ease;
-}
-
-.top-rated .anime-card:hover .anime-title {
-  background-color: rgba(0, 0, 0, 0.9);
-}
-
-.top-rated .anime-card .hover-info {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 15px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  text-align: center;
-  font-size: 0.9em;
-}
-
-.top-rated .anime-card:hover .hover-info {
-  opacity: 1;
-}
-
-.top-rated .hover-info h3 {
-  margin-bottom: 10px;
-  font-size: 1.1em;
-}
 
 /* --- Responsive Adjustments --- */
-/* Ensure all responsive widths are handled correctly */
 @media (max-width: 1024px) {
   .home-page-content {
     padding: 15px;
   }
-  .top-airing .anime-card {
+  /* Apply card width consistently */
+  .anime-card {
     width: 180px;
     min-width: 180px;
-  }
-  .top-rated .anime-grid {
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   }
 }
 
@@ -290,13 +280,12 @@
   }
   .section-title {
     font-size: 1.3em;
+    margin-left: 10px; /* Adjust for smaller padding */
   }
-  .top-airing .anime-card {
+  /* Apply card width consistently */
+  .anime-card {
     width: 160px;
     min-width: 160px;
-  }
-  .top-rated .anime-grid {
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   }
   .view-more-button {
     padding: 8px 15px;
@@ -313,19 +302,17 @@
   }
   .section-title {
     font-size: 1.2em;
+    margin-left: 5px; /* Adjust for smaller padding */
     margin-bottom: 10px;
   }
-  .top-airing .anime-card {
+  /* Apply card width consistently */
+  .anime-card {
     width: 140px;
     min-width: 140px;
   }
-  .top-airing .anime-card .anime-title,
-  .top-airing .hover-info,
-  .top-rated .anime-card .anime-title,
-  .top-rated .hover-info {
+  /* Adjust font sizes for smaller screens */
+  .anime-card .anime-title,
+  .anime-card .hover-info {
     font-size: 0.8em;
-  }
-  .top-rated .anime-grid {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   }
 }
