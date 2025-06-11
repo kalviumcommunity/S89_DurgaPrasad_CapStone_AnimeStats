@@ -7,6 +7,11 @@ const watchlistEntrySchema = new mongoose.Schema({
   rating: Number,
   progress: Number,
   totalEpisodes: Number,
+  start_date: Date,
+  finish_date: Date,
+  is_rewatching: Boolean,
+  rewatch_count: Number,
+  notes: String,
 }, { _id: false });
 
 const UserSchema = new mongoose.Schema({

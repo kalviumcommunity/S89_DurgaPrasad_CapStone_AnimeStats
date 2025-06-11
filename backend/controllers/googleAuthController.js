@@ -88,7 +88,8 @@ const googleCallback = async (req, res) => {
     } else {
       // If already connected, redirect to the dashboard
       console.log('Redirecting to dashboard');
-      return res.redirect(`${FRONTEND_URL}/dashboard`);
+      // return res.redirect(`${FRONTEND_URL}/dashboard`);
+       return res.redirect(`${FRONTEND_URL}/home`);
     }
 
   } catch (error) {

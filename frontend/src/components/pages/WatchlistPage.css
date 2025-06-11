@@ -1,0 +1,46 @@
+/* client/src/pages/WatchlistPage.css */
+
+.watchlist-page {
+    padding: 20px;
+    font-family: sans-serif;
+}
+
+.watchlist-page h1 {
+    text-align: center;
+    color: #333;
+}
+
+.watchlist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+}
+
+.watchlist-item {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+.watchlist-item img {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+    object-fit: contain; /* Or use 'cover' depending on your preference */
+}
+
+.watchlist-item h3 {
+    font-size: 1em;
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+.watchlist-item p {
+    margin-bottom: 5px;
+}
+
+.watchlist-item select {
+    width: 80%;
+    padding: 5px;
+    margin-top: 10px;
+}

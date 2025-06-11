@@ -8,6 +8,7 @@ const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const animeRoutes = require('./routes/animeRoutes');
+const watchlistRoutes = require('./routes/watchlistRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -75,18 +76,12 @@ app.use((req, res, next) => {
 connectDB();
 
 // Routes
-app.get('/test-route', (req, res) => {
-  res.send('Test route works!');
-});
 
-app.get('/test-cors-redirect', (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
-  res.redirect('https://example.com');
-});
 
 app.use('/auth', authRoutes); // Your authentication routes (including Google)
 app.use('/api/user', userRoutes); // Your user routes
 app.use('/api/anime', animeRoutes);
+app.use('/api/user/watchlist', watchlistRoutes);
 
 // Default Route
 app.get('/', (req, res) => {
