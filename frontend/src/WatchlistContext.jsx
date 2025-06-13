@@ -1,5 +1,10 @@
+
+
+// src/WatchlistContext.jsx
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+
+axios.defaults.withCredentials = true; 
 
 export const WatchlistContext = createContext();
 
@@ -12,7 +17,7 @@ export const WatchlistProvider = ({ children }) => {
     try {
       setLoadingWatchlistGlobal(true);
       setErrorWatchlistGlobal(null);
-      const response = await axios.get('/api/user/watchlist');
+      const response = await axios.get('/api/user/watchlist'); // Will be proxied to 8080
       setWatchlist(response.data);
     } catch (error) {
       console.error('Error fetching global watchlist:', error);
@@ -29,28 +34,34 @@ export const WatchlistProvider = ({ children }) => {
   const updateWatchlistStatusGlobal = useCallback(async (animeId, newStatus) => {
     try {
       await axios.put(`/api/user/watchlist/${animeId}`, { status: newStatus });
-      setWatchlist(prevWatchlist =>
-        prevWatchlist.map(item =>
+      setWatchlist(prev =>
+        prev.map(item =>
           item.animeId === parseInt(animeId, 10) ? { ...item, status: newStatus } : item
         )
       );
     } catch (error) {
       console.error('Error updating global watchlist status:', error);
-      // Consider showing an error message to the user
     }
   }, []);
 
   const addToWatchlistGlobal = useCallback(async (animeId, status) => {
     try {
       await axios.post('/api/user/watchlist', { animeId, status });
-      fetchWatchlistGlobal(); // Refetch the list to include the
+      fetchWatchlistGlobal();
     } catch (error) {
       console.error('Error adding to global watchlist:', error);
     }
   }, [fetchWatchlistGlobal]);
 
   return (
-    <WatchlistContext.Provider value={{ watchlist, loadingWatchlistGlobal, errorWatchlistGlobal, updateWatchlistStatusGlobal, fetchWatchlistGlobal, addToWatchlistGlobal }}>
+    <WatchlistContext.Provider value={{
+      watchlist,
+      loadingWatchlistGlobal,
+      errorWatchlistGlobal,
+      updateWatchlistStatusGlobal,
+      fetchWatchlistGlobal,
+      addToWatchlistGlobal
+    }}>
       {children}
     </WatchlistContext.Provider>
   );
