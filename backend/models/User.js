@@ -1,8 +1,26 @@
 // user.js
 const mongoose = require('mongoose');
 
+// Updated watchlistEntrySchema
 const watchlistEntrySchema = new mongoose.Schema({
   animeId: Number,
+  title: String, // NEW: For display and stats
+  main_picture: {
+    medium: String,
+    large: String,
+  },
+  genres: [
+    {
+      id: Number,
+      name: String,
+    }
+  ],
+  studios: [
+    {
+      id: Number,
+      name: String,
+    }
+  ],
   status: String,
   rating: Number,
   progress: Number,
@@ -62,8 +80,6 @@ const UserSchema = new mongoose.Schema({
     dateCompleted: Date,
     rating: Number,
   }],
-
-
 }, { timestamps: true });
 
 module.exports = mongoose.models.User || mongoose.model('User', UserSchema);

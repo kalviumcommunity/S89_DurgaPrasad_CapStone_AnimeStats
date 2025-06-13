@@ -9,6 +9,7 @@ const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const animeRoutes = require('./routes/animeRoutes');
 const watchlistRoutes = require('./routes/watchlistRoutes');
+const statsRoutes = require('./routes/statsRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -82,6 +83,7 @@ app.use('/auth', authRoutes); // Your authentication routes (including Google)
 app.use('/api/user', userRoutes); // Your user routes
 app.use('/api/anime', animeRoutes);
 app.use('/api/user/watchlist', watchlistRoutes);
+app.use('/api/stats', statsRoutes);
 
 // Default Route
 app.get('/', (req, res) => {
