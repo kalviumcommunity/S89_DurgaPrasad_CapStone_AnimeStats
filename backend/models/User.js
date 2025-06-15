@@ -155,6 +155,7 @@ const UserSchema = new mongoose.Schema({
   refreshToken: String,
   tokenType: String,
   expiresIn: Number,
+  expiresAt: Number,
   lastSynced: Date,
 },
 
@@ -162,7 +163,7 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  malTokenExpiry: Number, // for token refresh logic
+  
 
   // ✅ Watchlist
   watchlist: [watchlistEntrySchema],
