@@ -112,6 +112,8 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom'; // Hook to access query parameters
 import Navbar from '../../Navbar';
 import '../HomePage.css'; // Reuse existing anime-card styles
+import './SearchResultsPage.css';
+
 
 function SearchResultsPage() {
   const [searchResults, setSearchResults] = useState([]);

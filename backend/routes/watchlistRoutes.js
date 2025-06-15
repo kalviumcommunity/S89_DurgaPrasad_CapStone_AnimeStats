@@ -147,7 +147,8 @@ router.post('/', ensureValidMalToken, async (req, res) => {
 
     const response = await axios.get(`https://api.myanimelist.net/v2/anime/${animeId}`, {
       headers: {
-        Authorization: `Bearer ${user.malAccessToken}`,
+       Authorization: `Bearer ${user.mal.accessToken}` // ✅ correct key
+
       },
       params: {
         fields: 'title,main_picture,genres,studios,num_episodes',
