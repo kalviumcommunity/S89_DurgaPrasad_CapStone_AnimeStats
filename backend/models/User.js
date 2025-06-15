@@ -154,7 +154,6 @@ const UserSchema = new mongoose.Schema({
   accessToken: String,
   refreshToken: String,
   tokenType: String,
-  expiresIn: Number,
   expiresAt: Number,
   lastSynced: Date,
 },
