@@ -165,7 +165,6 @@
 //   logout,
 // };
 
-
 const axios = require('axios');
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
@@ -183,7 +182,8 @@ const signup = async (req, res) => {
     if (existingUser)
       return res.status(400).json({ message: 'User already exists' });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10); // 10 salt rounds
+
     const user = new User({ username, password: hashedPassword });
     await user.save();
 
@@ -212,7 +212,7 @@ const login = async (req, res) => {
       expiresIn: '7d',
     });
 
-    req.session.userId = user._id;
+    req.session.userId = user._id; // Storing user in session
     res.json({ message: 'Login successful', token });
   } catch (err) {
     res.status(500).json({ message: 'Login failed', error: err.message });
@@ -264,14 +264,18 @@ const malCallback = async (req, res) => {
         redirect_uri: process.env.MAL_REDIRECT_URI,
       }),
       {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
       }
     );
 
     const { access_token, refresh_token, token_type, expires_in } = tokenResponse.data;
 
     const userResponse = await axios.get('https://api.myanimelist.net/v2/users/@me', {
-      headers: { Authorization: `Bearer ${access_token}` },
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
     });
 
     const malData = userResponse.data;
@@ -282,7 +286,7 @@ const malCallback = async (req, res) => {
         accessToken: access_token,
         refreshToken: refresh_token,
         tokenType: token_type,
-        expiresAt: Date.now() + expires_in * 1000, // expiresAt (timestamp)
+        expiresAt: Date.now() + expires_in * 1000,
         lastSynced: new Date(),
       },
       malAuthenticated: true,
@@ -323,11 +327,12 @@ const refreshMalToken = async (user) => {
     user.mal.accessToken = access_token;
     user.mal.refreshToken = refresh_token;
     user.mal.expiresAt = Date.now() + expires_in * 1000;
+    user.malTokenExpiry = Date.now() + expires_in * 1000;
+    delete user.mal.expiresIn; // Remove if it exists
     await user.save();
 
     console.log("✅ MAL token refreshed successfully");
     return access_token;
-
   } catch (err) {
     console.error("❌ Failed to refresh MAL token:", err.response?.data || err.message);
     throw new Error("Failed to refresh MAL token");
@@ -352,13 +357,13 @@ const logout = (req, res) => {
   });
 };
 
-// =============== EXPORTS ================
+// =============== EXPORTING CONTROLLER FUNCTIONS ================
 module.exports = {
   signup,
   login,
   malLogin,
   malCallback,
-  refreshMalToken, // ✅ Now exported
   checkAuth,
   logout,
+  refreshMalToken,
 };
