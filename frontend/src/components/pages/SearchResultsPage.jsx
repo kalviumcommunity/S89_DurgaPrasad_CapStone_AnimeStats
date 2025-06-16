@@ -2,11 +2,8 @@
 // // src/components/pages/SearchResultsPage.jsx
 // import React, { useState, useEffect } from 'react';
 // import { useSearchParams } from 'react-router-dom'; // Hook to access query parameters
-
 // import Navbar from '../../Navbar';
 // import '../HomePage.css'; // Reuse existing anime-card styles
-// import './SearchResultsPage.css';
-
 
 // function SearchResultsPage() {
 //   const [searchResults, setSearchResults] = useState([]);
@@ -153,14 +150,13 @@ function SearchResultsPage() {
         }
 
         const data = await response.json();
+        
+        // --- REVERTING TO THE ORIGINAL, SIMPLER LOGIC ---
+        // This was the accurate logic from your first version.
+        // It does not perform the complex de-duplication.
         const results = data.data || data;
+        setSearchResults(results);
 
-        // Remove duplicates by anime.id
-        const uniqueResults = Array.from(
-          new Map(results.map((anime) => [anime.id, anime])).values()
-        );
-
-        setSearchResults(uniqueResults);
       } catch (e) {
         console.error('Error fetching search results:', e);
         setError(e);
@@ -177,7 +173,7 @@ function SearchResultsPage() {
       <div className="home-page">
         <Navbar />
         <div className="home-page-content">
-          <div>Loading search results for "{query || genreFilter}"...</div>
+          <div className="loading-message">Loading search results for "{query || genreFilter}"...</div>
         </div>
       </div>
     );
@@ -188,7 +184,7 @@ function SearchResultsPage() {
       <div className="home-page">
         <Navbar />
         <div className="home-page-content">
-          <div>Error loading search results: {error.message}</div>
+          <div className="error-message">Error loading search results: {error.message}</div>
         </div>
       </div>
     );
@@ -210,17 +206,24 @@ function SearchResultsPage() {
           <p>No anime found for "{query || genreFilter}". Please try a different search or filter.</p>
         ) : (
           <div className="anime-grid-all">
+            {/* --- KEEPING THE CURRENT JSX STRUCTURE --- */}
             {searchResults.map((anime) => (
-              <div key={anime.id}>
-                <Link to={`/anime/${anime.id}`} className="anime-card">
-                  {anime.main_picture && <img src={anime.main_picture} alt={anime.title} />}
-                  <div className="hover-info">
-                    <h3>{anime.title}</h3>
-                    {anime.mean && <p>Score: {anime.mean}</p>}
-                  </div>
+              <React.Fragment key={anime.id}>
+                <Link to={`/anime/${anime.id}`} className="anime-card-link">
+                   <div className="anime-card">
+                      {anime.main_picture && (
+                        <img 
+                          src={typeof anime.main_picture === 'object' ? anime.main_picture.large || anime.main_picture.medium : anime.main_picture} 
+                          alt={anime.title} 
+                        />
+                      )}
+                      <div className="hover-info">
+                        <h3>{anime.title}</h3>
+                        {anime.mean && <p>Score: {anime.mean}</p>}
+                      </div>
+                   </div>
                 </Link>
 
-                {/* Related Anime Section if available */}
                 {anime.related_anime && anime.related_anime.length > 0 && (
                   <div className="related-anime-section">
                     <h4>Related Anime</h4>
@@ -242,7 +245,7 @@ function SearchResultsPage() {
                     </div>
                   </div>
                 )}
-              </div>
+              </React.Fragment>
             ))}
           </div>
         )}

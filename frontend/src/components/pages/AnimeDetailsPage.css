@@ -71,6 +71,14 @@
 .anime-details-meta strong {
   color: #fff;
 }
+.button{
+  
+  background-color:#0077b3;
+  font-size: 0.8em;
+  padding: 8px 10px; 
+    
+    
+}
 
 .anime-details-synopsis {
   background-color: #222;

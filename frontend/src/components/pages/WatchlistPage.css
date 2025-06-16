@@ -163,6 +163,8 @@
   color: white;
 }
 
+/* Add this to your WatchlistPage.css file */
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .watchlist-grid {
