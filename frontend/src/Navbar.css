@@ -5,28 +5,50 @@
   left: 0;
   width: 100%;
   z-index: 100;
-  background-color: #1a1a1a; /* dark themed */
-  padding: 0.3rem 0;
+  background-color: #1a1a1a;
+  padding: 0.5rem 0;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Container */
+/* 
+  --- The Main Container ---
+  It now only has TWO children: .navbar-left and our new wrapper.
+  This makes positioning simple and predictable.
+*/
 .navbar-container {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-between; /* Pushes left and right groups apart */
   width: 100%;
+  padding: 0 50px;
+}
+
+/* 
+  --- NEW: The Wrapper for Search and Links ---
+  This is the group you can manually move.
+*/
+.navbar-center-right-wrapper {
+  display: flex;
+  align-items: center;
+
+  /* 
+    --- THIS IS YOUR MANUAL ADJUSTMENT KNOB ---
+    This margin pushes the ENTIRE search+links block to the left or right.
+    Increase it to move the block MORE to the LEFT.
+    Decrease it to move the block MORE to the RIGHT.
+  */
+  margin-right: 10rem; /* 👈 ADJUST THIS VALUE MANUALLY */
 }
 
 /* Left group (arrow + logo) */
 .navbar-left {
   display: flex;
   align-items: center;
-  margin-left: 20px; /* 👈 move arrow+logo group to the left */
-  gap: 10px;
+  flex-shrink: 0;
+  gap: 25px;
 }
 
-/* Back arrow */
 .back-button {
   font-size: 1.5rem;
   color: #ddd;
@@ -34,41 +56,110 @@
   border: none;
   cursor: pointer;
   transition: color 0.3s ease;
-  margin-right: 4px; /* 👈 fine-tune arrow position */
+  padding: 0 5px;
 }
+.back-button:hover { color: #00bfff; }
 
-.back-button:hover {
-  color: #00bfff;
-}
-
-/* Logo */
 .logo {
   font-size: 1.8rem;
   font-weight: bold;
   color: #00bfff;
-  margin-left: 4px; /* 👈 fine-tune logo */
+  text-decoration: none;
 }
 
-/* Right links */
+/* Search Form Styling */
+.search-form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 630px;
+  /* Add margin to create space between search and links */
+  margin-right: 15rem;
+}
+
+/* Form element aesthetics */
+.search-form input,
+.search-form select,
+.search-form button {
+  padding: 9px 15px;
+  border: 1px solid #444;
+  background-color: #282828;
+  color: #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.95em;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+}
+.search-form input:focus, .search-form select:focus {
+  border-color: #00bfff;
+  box-shadow: 0 0 0 2px rgba(0, 191, 255, 0.2);
+}
+.search-form input { width: 100%; }
+
+/*
+ ===============================================
+ --- THIS IS THE FIX FOR THE DROPDOWN WIDTH ---
+ ===============================================
+*/
+.search-form select {
+  cursor: pointer;
+  
+  /* --- ADDED THESE LINES --- */
+  width: 150px; /* Set a fixed width. Adjust this value if needed. */
+  text-overflow: ellipsis; /* Adds "..." to long text */
+  white-space: nowrap; /* Keeps text on one line */
+}
+
+.search-form button {
+  background-color: #0077b3;
+  color: white;
+  border-color: #0077b3;
+  cursor: pointer;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+.search-form button:hover {
+  background-color: #00bfff;
+  border-color: #00bfff;
+}
+
+/* Right Links Group Styling */
 .navbar-right {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  margin-right: 30px; /* 👈 move links slightly inward */
+  gap: 2.5rem;
+  flex-shrink: 0;
 }
-
 .navbar-right a {
   color: #ddd;
   text-decoration: none;
   font-weight: 500;
+  white-space: nowrap;
   transition: color 0.3s ease;
 }
+.navbar-right a:hover { color: #00bfff; }
 
-.navbar-right a:hover {
-  color: #00bfff;
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 992px) {
+  .navbar-container {
+    flex-wrap: wrap; /* Allow wrapping */
+  }
+  .navbar-center-right-wrapper {
+    order: 3; /* Move the whole group to the next line */
+    width: 100%;
+    margin-right: 0; /* Reset manual margin */
+    margin-top: 10px;
+  }
 }
 
-/* Ensure content is visible below navbar */
+/* --- Body Padding to prevent content from hiding under navbar --- */
 body {
   padding-top: 80px;
+}
+@media (max-width: 992px) {
+  body {
+    padding-top: 140px; /* More padding when navbar wraps */
+  }
 }
