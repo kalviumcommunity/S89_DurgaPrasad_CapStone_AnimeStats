@@ -7,15 +7,12 @@ const isAuthenticated = async (req, res, next) => {
       if (!user) {
         return res.status(401).json({ message: 'User not found' });
       }
-      console.log('✅ Authenticated user:', user.username || user.googleName || user._id);
       req.user = user;
       return next();
     } else {
-      console.log('❌ No session userId found');
       return res.status(401).json({ message: 'Not authenticated' });
     }
   } catch (err) {
-    console.error("❌ Error in isAuthenticated middleware:", err);
     return res.status(500).json({ message: 'Authentication check failed' });
   }
 };
