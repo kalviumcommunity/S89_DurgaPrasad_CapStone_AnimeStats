@@ -133,7 +133,7 @@ const AnimeDetailsPage = () => {
                   <option value="dropped">Dropped</option>
                 </select>
                 {!isInWatchlist && (
-                  <button onClick={handleAddToWatchlist} disabled={isAdding}>
+                  <button  className='button' onClick={handleAddToWatchlist} disabled={isAdding}>
                     {isAdding ? 'Adding...' : 'Add to My Watchlist'}
                   </button>
                 )}

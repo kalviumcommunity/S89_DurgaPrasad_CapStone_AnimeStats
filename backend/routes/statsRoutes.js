@@ -1,5 +1,3 @@
-
-
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
@@ -10,34 +8,33 @@ router.use(isAuthenticated);
 // GET /api/stats
 router.get('/', async (req, res) => {
   try {
-    const user = await User.findById(req.session.userId);
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    const user = await User.findById(req.session.userId).lean();
+    if (!user || !user.watchlist || user.watchlist.length === 0) {
+      return res.status(200).json({
+        statusCounts: {},
+        topGenres: [],
+        topStudios: [],
+        totalEpisodesWatched: 0,
+      });
+    }
 
-    const statusCounts = {
-      completed: 0,
-      watching: 0,
-      plan_to_watch: 0,
-      dropped: 0,
-      on_hold: 0,
-    };
+    const { watchlist } = user;
 
-    let totalEpisodes = 0;
+    const totalEpisodesWatched = watchlist
+      .filter(item => item.status === 'completed')
+      .reduce((sum, item) => sum + (item.totalEpisodes || 0), 0);
+
+    const statusCounts = {};
     const genreCount = {};
     const studioCount = {};
 
-    user.watchlist.forEach(anime => {
+    watchlist.forEach(anime => {
       const status = anime.status || 'plan_to_watch';
-      statusCounts[status]++;
-
-      totalEpisodes += anime.totalEpisodes || 0;
-
-      console.log(`Anime Title: ${anime.title}`);
-      console.log('Genres:', anime.genres);
-      console.log('Studios:', anime.studios);
+      statusCounts[status] = (statusCounts[status] || 0) + 1;
 
       if (Array.isArray(anime.genres)) {
         anime.genres.forEach(genre => {
-          const name = genre.name?.toLowerCase();
+          const name = genre.name;
           if (name) {
             genreCount[name] = (genreCount[name] || 0) + 1;
           }
@@ -46,7 +43,7 @@ router.get('/', async (req, res) => {
 
       if (Array.isArray(anime.studios)) {
         anime.studios.forEach(studio => {
-          const name = studio.name?.toLowerCase();
+          const name = studio.name;
           if (name) {
             studioCount[name] = (studioCount[name] || 0) + 1;
           }
@@ -66,10 +63,11 @@ router.get('/', async (req, res) => {
 
     res.json({
       statusCounts,
-      totalEpisodes,
       topGenres,
       topStudios,
+      totalEpisodesWatched,
     });
+    
   } catch (error) {
     console.error('Error generating stats:', error);
     res.status(500).json({ message: 'Failed to generate statistics' });
