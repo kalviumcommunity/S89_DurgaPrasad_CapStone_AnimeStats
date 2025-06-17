@@ -66,10 +66,6 @@ app.get('/', (req, res) => {
   res.send('Anime Watchlist Tracker Backend Running! 🚀');
 });
 
-// ✅ 8. Debug session endpoint
-app.get('/debug-session', (req, res) => {
-  res.json(req.session);
-});
 
 // ✅ 9. Test OAuth UI
 app.get('/test-oauth', (req, res) => {
@@ -87,4 +83,7 @@ app.use((err, req, res, next) => {
 });
 
 // ✅ 11. Start server
-app.listen(PORT);
+app.listen(PORT, () => {
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
+});
+
