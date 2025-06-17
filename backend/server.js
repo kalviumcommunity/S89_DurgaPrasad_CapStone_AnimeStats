@@ -13,7 +13,7 @@ const statsRoutes = require('./routes/statsRoutes');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// ✅ Enable CORS for frontend
+// ✅ 1. Enable CORS for frontend
 app.use(cors({
   origin: 'http://localhost:5173',
   credentials: true,
@@ -21,10 +21,10 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-// ✅ Parse JSON bodies
+// ✅ 2. Parse JSON bodies
 app.use(express.json());
 
-// ✅ Configure sessions with MongoDB store
+// ✅ 3. Session setup with serialization fix
 app.use(session({
   secret: process.env.SESSION_SECRET || 'anime-stats-secret-key',
   resave: false,
@@ -37,57 +37,54 @@ app.use(session({
     touchAfter: 24 * 3600,
     stringify: false,
     serialize: (session) => session,
-    unserialize: (session) => session,
+    unserialize: (session) => session
   }),
   cookie: {
     secure: false,
     httpOnly: true,
     sameSite: 'lax',
-    maxAge: 24 * 60 * 60 * 1000,
+    maxAge: 24 * 60 * 60 * 1000
   }
 }));
 
-// ✅ Trust proxy if behind a proxy
+// ✅ 4. Trust proxy if needed
 app.set('trust proxy', 1);
 
-// ✅ Remove verbose session logging
-// (Safe for production — removed all detailed session console logs)
 
-// ✅ Connect to MongoDB
+// ✅ 5. Connect to MongoDB
 connectDB();
 
-// ✅ Register routes
+// ✅ 6. Define routes
 app.use('/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/anime', animeRoutes);
 app.use('/api/user/watchlist', watchlistRoutes);
 app.use('/api/stats', statsRoutes);
 
-// ✅ Root test route
+// ✅ 7. Root test route
 app.get('/', (req, res) => {
   res.send('Anime Watchlist Tracker Backend Running! 🚀');
 });
 
-// ✅ Optional: Remove in production
+// ✅ 8. Debug session endpoint
 app.get('/debug-session', (req, res) => {
-  res.json({ sessionActive: !!req.session.userId });
+  res.json(req.session);
 });
 
-// ✅ Optional test route for OAuth — remove in production
+// ✅ 9. Test OAuth UI
 app.get('/test-oauth', (req, res) => {
   res.send(`
     <h1>Test MyAnimeList OAuth</h1>
+    <p>Click below to test login:</p>
     <a href="/auth/login" style="padding:10px 20px;background:#2e51a2;color:white;border-radius:4px;text-decoration:none;">Login with MyAnimeList</a>
+    <p>Then check: <a href="/debug-session">debug-session</a></p>
   `);
 });
 
-// ✅ Global error handler
+// ✅ 10. Global error handler
 app.use((err, req, res, next) => {
-  console.error('Server Error:', err.message);
   res.status(500).send('Server Error: Something went wrong.');
 });
 
-// ✅ Start the server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
-});
+// ✅ 11. Start server
+app.listen(PORT);

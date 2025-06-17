@@ -56,7 +56,7 @@ function Navbar() {
       <div className="navbar-container">
         <div className="navbar-left">
           <button className="back-button" onClick={handleBackClick}>←</button>
-          <Link to="/home" className="logo">TSD</Link> {/* Logo link to /home */}
+          <Link to="/home" className="logo">Anime</Link> {/* Logo link to /home */}
         </div>
         
         <div className="navbar-center-right-wrapper">
