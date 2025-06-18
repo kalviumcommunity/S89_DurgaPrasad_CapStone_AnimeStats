@@ -1,7 +1,7 @@
 // LoginPage.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './LoginPage.css'; // Make sure to create this file
+import './LoginPage.css';
 
 const LoginPage = () => {
   const [identifier, setIdentifier] = useState('');
@@ -9,8 +9,10 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:8080/auth/google/login';
+    window.location.href = `${API_BASE_URL}/auth/google/login`;
   };
 
   const handleLocalLogin = async (event) => {
@@ -18,12 +20,13 @@ const LoginPage = () => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:8080/auth/local/login', {
+      const response = await fetch(`${API_BASE_URL}/auth/local/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ identifier, password }),
+        credentials: 'include', // important if using cookies/session
       });
 
       const data = await response.json();
