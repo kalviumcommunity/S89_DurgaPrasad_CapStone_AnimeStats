@@ -1,14 +1,12 @@
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
-axios.defaults.withCredentials = true; // Ensure cookies are sent with all requests
+axios.defaults.withCredentials = true; // Always send cookies (session)
 
 export const WatchlistContext = createContext();
 
-// 🔁 Dynamic base URL switch based on window.location
-const BASE_URL = window.location.hostname === 'localhost'
-  ? 'http://localhost:8080'
-  : 'https://s89-durgaprasad-capstone-animestats.onrender.com';
+// ✅ Use VITE_API_URL from .env (safe and recommended)
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export const WatchlistProvider = ({ children }) => {
   const [watchlist, setWatchlist] = useState([]);
@@ -27,6 +25,7 @@ export const WatchlistProvider = ({ children }) => {
       setWatchlist(response.data);
     } catch (error) {
       setErrorWatchlistGlobal('Failed to load watchlist.');
+      console.error('Fetch Watchlist Error:', error.response?.data || error.message);
     } finally {
       setLoadingWatchlistGlobal(false);
     }
@@ -44,13 +43,13 @@ export const WatchlistProvider = ({ children }) => {
         { withCredentials: true }
       );
 
-      if (response.data && response.data.watchlist) {
+      if (response.data?.watchlist) {
         setWatchlist(response.data.watchlist);
       } else {
         fetchWatchlistGlobal();
       }
     } catch (error) {
-      // No state change on error
+      console.error('Update Watchlist Error:', error.response?.data || error.message);
     }
   }, [fetchWatchlistGlobal]);
 
@@ -62,11 +61,11 @@ export const WatchlistProvider = ({ children }) => {
         { withCredentials: true }
       );
 
-      if (response.data && response.data.watchlist) {
+      if (response.data?.watchlist) {
         setWatchlist(response.data.watchlist);
       }
     } catch (error) {
-      // No state change on error
+      console.error('Add to Watchlist Error:', error.response?.data || error.message);
     }
   }, []);
 
@@ -77,14 +76,14 @@ export const WatchlistProvider = ({ children }) => {
         { withCredentials: true }
       );
 
-      if (response.data && response.data.watchlist) {
+      if (response.data?.watchlist) {
         setWatchlist(response.data.watchlist);
       }
     } catch (error) {
-      // No state change on error
+      console.error('Remove from Watchlist Error:', error.response?.data || error.message);
     }
   }, []);
-  
+
   return (
     <WatchlistContext.Provider value={{
       watchlist,
