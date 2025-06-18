@@ -6,6 +6,12 @@ import './AnimeDetailsPage.css';
 import Navbar from '../../Navbar'; // ✅ Imported Navbar
 import { WatchlistContext } from '../../WatchlistContext';
 
+// ✅ Base URL (localhost vs production)
+const BASE_URL =
+  window.location.hostname === 'localhost'
+    ? 'http://localhost:8080'
+    : 'https://s89-durgaprasad-capstone-animestats.onrender.com';
+
 const AnimeDetailsPage = () => {
   const { id } = useParams();
   const [animeDetails, setAnimeDetails] = useState(null);
@@ -22,7 +28,9 @@ const AnimeDetailsPage = () => {
     try {
       setLoadingDetails(true);
       setErrorDetails(null);
-      const response = await axios.get(`/api/anime/${id}`);
+      const response = await axios.get(`${BASE_URL}/api/anime/${id}`, {
+        withCredentials: true
+      });
       setAnimeDetails(response.data);
     } catch (err) {
       console.error('Error fetching anime details:', err);
@@ -73,6 +81,10 @@ const AnimeDetailsPage = () => {
     updateWatchlistStatusGlobal(id, newStatus);
   };
 
+  const renderArray = (arr) => {
+    return arr && arr.length > 0 ? arr.map(item => item.name).join(', ') : 'N/A';
+  };
+
   if (loadingDetails) {
     return <div className="anime-details-container loading">Loading data...</div>;
   }
@@ -85,13 +97,9 @@ const AnimeDetailsPage = () => {
     return <div className="anime-details-container no-data">No anime details found.</div>;
   }
 
-  const renderArray = (arr) => {
-    return arr && arr.length > 0 ? arr.map(item => item.name).join(', ') : 'N/A';
-  };
-
   return (
     <>
-      <Navbar /> {/* ✅ Rendered Navbar here */}
+      <Navbar />
 
       <div className="anime-details-page">
         <div className="anime-details-header">
@@ -133,7 +141,7 @@ const AnimeDetailsPage = () => {
                   <option value="dropped">Dropped</option>
                 </select>
                 {!isInWatchlist && (
-                  <button  className='button' onClick={handleAddToWatchlist} disabled={isAdding}>
+                  <button className="button" onClick={handleAddToWatchlist} disabled={isAdding}>
                     {isAdding ? 'Adding...' : 'Add to My Watchlist'}
                   </button>
                 )}

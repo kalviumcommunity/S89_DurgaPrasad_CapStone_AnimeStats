@@ -5,6 +5,12 @@ import Navbar from '../../Navbar';
 import '../HomePage.css';
 import './SearchResultsPage.css';
 
+// ✅ Base URL switch for development vs production
+const BASE_URL =
+  window.location.hostname === 'localhost'
+    ? 'http://localhost:8080'
+    : 'https://s89-durgaprasad-capstone-animestats.onrender.com';
+
 function SearchResultsPage() {
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,21 +34,21 @@ function SearchResultsPage() {
         let apiUrl = '';
 
         if (query) {
-          apiUrl = `/api/anime/search?limit=50&q=${encodeURIComponent(query)}`;
+          apiUrl = `${BASE_URL}/api/anime/search?limit=50&q=${encodeURIComponent(query)}`;
         } else if (genreFilter && genreFilter !== 'All') {
-          apiUrl = `/api/anime/genre-based?genre=${encodeURIComponent(genreFilter)}`;
+          apiUrl = `${BASE_URL}/api/anime/genre-based?genre=${encodeURIComponent(genreFilter)}`;
         }
 
-        const response = await fetch(apiUrl);
+        const response = await fetch(apiUrl, {
+          credentials: 'include'
+        });
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
-        
-        // --- REVERTING TO THE ORIGINAL, SIMPLER LOGIC ---
-        // This was the accurate logic from your first version.
-        // It does not perform the complex de-duplication.
+
         const results = data.data || data;
         setSearchResults(results);
 
@@ -95,22 +101,25 @@ function SearchResultsPage() {
           <p>No anime found for "{query || genreFilter}". Please try a different search or filter.</p>
         ) : (
           <div className="anime-grid-all">
-            {/* --- KEEPING THE CURRENT JSX STRUCTURE --- */}
             {searchResults.map((anime) => (
               <React.Fragment key={anime.id}>
                 <Link to={`/anime/${anime.id}`} className="anime-card-link">
-                   <div className="anime-card">
-                      {anime.main_picture && (
-                        <img 
-                          src={typeof anime.main_picture === 'object' ? anime.main_picture.large || anime.main_picture.medium : anime.main_picture} 
-                          alt={anime.title} 
-                        />
-                      )}
-                      <div className="hover-info">
-                        <h3>{anime.title}</h3>
-                        {anime.mean && <p>Score: {anime.mean}</p>}
-                      </div>
-                   </div>
+                  <div className="anime-card">
+                    {anime.main_picture && (
+                      <img
+                        src={
+                          typeof anime.main_picture === 'object'
+                            ? anime.main_picture.large || anime.main_picture.medium
+                            : anime.main_picture
+                        }
+                        alt={anime.title}
+                      />
+                    )}
+                    <div className="hover-info">
+                      <h3>{anime.title}</h3>
+                      {anime.mean && <p>Score: {anime.mean}</p>}
+                    </div>
+                  </div>
                 </Link>
 
                 {anime.related_anime && anime.related_anime.length > 0 && (
