@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 8080;
 // ✅ 1. Enable CORS for frontend
 app.use(cors({
   origin: (origin, callback) => {
-    const allowedOrigins = ['http://localhost:5173', 'https://yourfrontend.netlify.app'];
+    const allowedOrigins = ['http://localhost:5173', 'https://animestats89.netlify.app'];
     if (!origin || allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
