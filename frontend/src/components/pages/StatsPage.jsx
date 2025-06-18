@@ -10,6 +10,11 @@ import Navbar from '../../Navbar';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28CF2'];
 
+// ✅ Dynamic backend URL
+const BASE_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:8080'
+  : 'https://s89-durgaprasad-capstone-animestats.onrender.com';
+
 const StatsPage = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,8 +22,10 @@ const StatsPage = () => {
 
   const fetchStats = useCallback(async () => {
     try {
-      setLoading(true); 
-      const response = await axios.get('/api/stats');
+      setLoading(true);
+      const response = await axios.get(`${BASE_URL}/api/stats`, {
+        withCredentials: true
+      });
       setStats(response.data);
     } catch (err) {
       setError('Failed to fetch stats');
@@ -45,7 +52,7 @@ const StatsPage = () => {
       </>
     );
   }
-  
+
   if (error) {
     return (
       <>
@@ -56,7 +63,7 @@ const StatsPage = () => {
       </>
     );
   }
-  
+
   if (!stats || !stats.statusCounts) {
     return (
       <>

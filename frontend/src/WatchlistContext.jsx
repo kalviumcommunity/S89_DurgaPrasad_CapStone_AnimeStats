@@ -5,6 +5,11 @@ axios.defaults.withCredentials = true; // Ensure cookies are sent with all reque
 
 export const WatchlistContext = createContext();
 
+// 🔁 Dynamic base URL switch based on window.location
+const BASE_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:8080'
+  : 'https://s89-durgaprasad-capstone-animestats.onrender.com';
+
 export const WatchlistProvider = ({ children }) => {
   const [watchlist, setWatchlist] = useState([]);
   const [loadingWatchlistGlobal, setLoadingWatchlistGlobal] = useState(true);
@@ -15,7 +20,7 @@ export const WatchlistProvider = ({ children }) => {
       setLoadingWatchlistGlobal(true);
       setErrorWatchlistGlobal(null);
 
-      const response = await axios.get('http://localhost:8080/api/user/watchlist', {
+      const response = await axios.get(`${BASE_URL}/api/user/watchlist`, {
         withCredentials: true,
       });
 
@@ -34,7 +39,7 @@ export const WatchlistProvider = ({ children }) => {
   const updateWatchlistStatusGlobal = useCallback(async (animeId, newStatus) => {
     try {
       const response = await axios.put(
-        `http://localhost:8080/api/user/watchlist/${animeId}`,
+        `${BASE_URL}/api/user/watchlist/${animeId}`,
         { status: newStatus },
         { withCredentials: true }
       );
@@ -52,7 +57,7 @@ export const WatchlistProvider = ({ children }) => {
   const addToWatchlistGlobal = useCallback(async (animeId, status) => {
     try {
       const response = await axios.post(
-        'http://localhost:8080/api/user/watchlist',
+        `${BASE_URL}/api/user/watchlist`,
         { animeId, status },
         { withCredentials: true }
       );
@@ -68,7 +73,7 @@ export const WatchlistProvider = ({ children }) => {
   const removeFromWatchlistGlobal = useCallback(async (animeId) => {
     try {
       const response = await axios.delete(
-        `http://localhost:8080/api/user/watchlist/${animeId}`,
+        `${BASE_URL}/api/user/watchlist/${animeId}`,
         { withCredentials: true }
       );
 
