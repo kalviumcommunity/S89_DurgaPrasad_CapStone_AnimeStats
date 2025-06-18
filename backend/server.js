@@ -15,7 +15,13 @@ const PORT = process.env.PORT || 8080;
 
 // ✅ 1. Enable CORS for frontend
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: (origin, callback) => {
+    const allowedOrigins = ['http://localhost:5173', 'https://yourfrontend.netlify.app'];
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -40,7 +46,7 @@ app.use(session({
     unserialize: (session) => session
   }),
   cookie: {
-    secure: false,
+    secure: true,
     httpOnly: true,
     sameSite: 'lax',
     maxAge: 24 * 60 * 60 * 1000

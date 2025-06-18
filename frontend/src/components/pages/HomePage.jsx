@@ -1,9 +1,7 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import Navbar from '../../Navbar';
 import { useNavigate, Link } from 'react-router-dom';
 import '../HomePage.css';
-
 
 function HomePage() {
   const navigate = useNavigate();
@@ -55,7 +53,7 @@ function HomePage() {
       setRightArrow(!isAtEnd);
     }
   };
-  
+
   const handleScroll = (ref, direction) => {
     if (ref.current) {
       const scrollAmount = ref.current.clientWidth * 0.9;
@@ -65,35 +63,57 @@ function HomePage() {
       });
     }
   };
-  
-  // --- Data Fetching Hooks (Unchanged) ---
+
+  const baseURL = import.meta.env.VITE_API_BASE_URL;
+
   useEffect(() => {
     const fetchTopAiring = async () => {
-      try { setLoadingAiring(true); const res = await fetch('/api/anime/top-airing'); const data = await res.json(); setTopAiring(data); } 
-      catch (e) { setErrorAiring(e); } finally { setLoadingAiring(false); }
+      try {
+        setLoadingAiring(true);
+        const res = await fetch(`${baseURL}/api/anime/top-airing`);
+        const data = await res.json();
+        setTopAiring(data);
+      } catch (e) {
+        setErrorAiring(e);
+      } finally {
+        setLoadingAiring(false);
+      }
     };
     fetchTopAiring();
   }, []);
 
   useEffect(() => {
     const fetchTopRated = async () => {
-      try { setLoadingRated(true); const res = await fetch('/api/anime/top-rated'); const data = await res.json(); setTopRated(data); } 
-      catch (e) { setErrorRated(e); } finally { setLoadingRated(false); }
+      try {
+        setLoadingRated(true);
+        const res = await fetch(`${baseURL}/api/anime/top-rated`);
+        const data = await res.json();
+        setTopRated(data);
+      } catch (e) {
+        setErrorRated(e);
+      } finally {
+        setLoadingRated(false);
+      }
     };
     fetchTopRated();
   }, []);
 
   useEffect(() => {
     const fetchPopular = async () => {
-      try { setLoadingPopular(true); const res = await fetch('/api/anime/popular-season'); const data = await res.json(); setPopularSeason(data); }
-      catch (e) { setErrorPopular(e); } finally { setLoadingPopular(false); }
+      try {
+        setLoadingPopular(true);
+        const res = await fetch(`${baseURL}/api/anime/popular-season`);
+        const data = await res.json();
+        setPopularSeason(data);
+      } catch (e) {
+        setErrorPopular(e);
+      } finally {
+        setLoadingPopular(false);
+      }
     };
     fetchPopular();
   }, []);
 
-  // --- THE CORRECTED ARROW LOGIC ---
-  // Each useEffect now directly depends on its data array.
-  
   useEffect(() => {
     const element = genreCarouselRef.current;
     if (!element) return;
@@ -106,7 +126,7 @@ function HomePage() {
       element.removeEventListener('scroll', handleCheck);
       window.removeEventListener('resize', handleCheck);
     };
-  }, [genres]); // Depends on the static genres array
+  }, [genres]);
 
   useEffect(() => {
     const element = topAiringCarouselRef.current;
@@ -120,7 +140,7 @@ function HomePage() {
       element.removeEventListener('scroll', handleCheck);
       window.removeEventListener('resize', handleCheck);
     };
-  }, [topAiring]); // Dependency is the data itself
+  }, [topAiring]);
 
   useEffect(() => {
     const element = topRatedCarouselRef.current;
@@ -134,7 +154,7 @@ function HomePage() {
       element.removeEventListener('scroll', handleCheck);
       window.removeEventListener('resize', handleCheck);
     };
-  }, [topRated]); // Dependency is the data itself
+  }, [topRated]);
 
   useEffect(() => {
     const element = popularSeasonCarouselRef.current;
@@ -148,13 +168,13 @@ function HomePage() {
       element.removeEventListener('scroll', handleCheck);
       window.removeEventListener('resize', handleCheck);
     };
-  }, [popularSeason]); // Dependency is the data itself
+  }, [popularSeason]);
 
   const handleGenreTagClick = (genre) => {
     navigate(`/search-results?genre=${encodeURIComponent(genre)}`);
     setSelectedSearchGenre(genre);
   };
-  
+
   if (loadingAiring || loadingRated || loadingPopular) {
     return (
       <div className="home-page">
@@ -178,7 +198,6 @@ function HomePage() {
       </div>
     );
   }
-
   return (
     <div className="home-page">
       <Navbar />

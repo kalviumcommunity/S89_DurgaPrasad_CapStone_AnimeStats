@@ -1,23 +1,28 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import './WatchlistPage.css';
-import { WatchlistContext } from '../../WatchlistContext'; // Adjust the path
+import { WatchlistContext } from '../../WatchlistContext';
 import { Link } from 'react-router-dom';
 import Navbar from '../../Navbar';
 
 const WatchlistPage = () => {
-  // 1. Remove the unnecessary 'refresh' function from the context destructuring
   const { 
     watchlist, 
     loadingWatchlistGlobal, 
     errorWatchlistGlobal, 
     updateWatchlistStatusGlobal, 
-    removeFromWatchlistGlobal
+    removeFromWatchlistGlobal 
   } = useContext(WatchlistContext);
   
   const [detailedWatchlist, setDetailedWatchlist] = useState([]);
   const [loadingDetails, setLoadingDetails] = useState(true);
   const [errorDetails, setErrorDetails] = useState(null);
+
+  // ✅ Determine base URL based on environment
+  const BASE_URL =
+  window.location.origin === 'http://localhost:5173'
+    ? 'http://localhost:8080'
+    : 'https://s89-durgaprasad-capstone-animestats.onrender.com';
 
   useEffect(() => {
     if (!loadingWatchlistGlobal && watchlist && watchlist.length > 0) {
@@ -27,7 +32,10 @@ const WatchlistPage = () => {
         const details = await Promise.all(
           watchlist.map(async (item) => {
             try {
-              const animeDetailsResponse = await axios.get(`/api/anime/${item.animeId}`);
+              const animeDetailsResponse = await axios.get(
+                `${BASE_URL}/api/anime/${item.animeId}`,
+                { withCredentials: true }
+              );
               return { ...item, animeDetails: animeDetailsResponse.data };
             } catch (error) {
               console.error(`Error fetching details for anime ID ${item.animeId}:`, error);
@@ -55,14 +63,12 @@ const WatchlistPage = () => {
     }
   };
 
-  // 2. The 'handleRefresh' function is no longer needed and has been removed.
-
   if (loadingWatchlistGlobal || loadingDetails) {
     return (
       <>
         <Navbar />
         <div className="watchlist-page">
-            <div className="loading-message">Loading your watchlist...</div>
+          <div className="loading-message">Loading your watchlist...</div>
         </div>
       </>
     );
@@ -70,12 +76,12 @@ const WatchlistPage = () => {
 
   if (errorWatchlistGlobal || errorDetails) {
     return (
-        <>
-            <Navbar />
-            <div className="watchlist-page">
-                <div className="error-message">Error loading your watchlist. Please try again later.</div>
-            </div>
-        </>
+      <>
+        <Navbar />
+        <div className="watchlist-page">
+          <div className="error-message">Error loading your watchlist. Please try again later.</div>
+        </div>
+      </>
     );
   }
 
@@ -122,15 +128,13 @@ const WatchlistPage = () => {
                           <option value="dropped">Dropped</option>
                         </select>
                       </div>
-                      
-                      {/* 3. The "Refresh Data" button has been removed from the JSX */}
 
                       <button
                         onClick={() => handleDelete(item.animeId, item.animeDetails.title)}
                         className="delete-button"
                         title="Remove from watchlist"
                       >
-                       Remove
+                        Remove
                       </button>
                     </div>
                   </>
