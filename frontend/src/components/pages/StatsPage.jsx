@@ -11,9 +11,7 @@ import Navbar from '../../Navbar';
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28CF2'];
 
 // ✅ Dynamic backend URL
-const BASE_URL = window.location.hostname === 'localhost'
-  ? 'http://localhost:8080'
-  : 'https://s89-durgaprasad-capstone-animestats.onrender.com';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const StatsPage = () => {
   const [stats, setStats] = useState(null);
