@@ -1,15 +1,12 @@
-// src/components/pages/SearchResultsPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
+import axios from 'axios'; // ✅ FIX #1: Imported axios for consistency
 import Navbar from '../../Navbar';
 import '../HomePage.css';
 import './SearchResultsPage.css';
 
-// ✅ Base URL switch for development vs production
-const BASE_URL =
-  window.location.hostname === 'localhost'
-    ? 'http://localhost:8080'
-    : 'https://s89-durgaprasad-capstone-animestats.onrender.com';
+// ✅ FIX #2: Replaced the hardcoded URL with the single, reliable environment variable.
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function SearchResultsPage() {
   const [searchResults, setSearchResults] = useState([]);
@@ -31,29 +28,27 @@ function SearchResultsPage() {
       setError(null);
 
       try {
-        let apiUrl = '';
+        let endpoint = '';
+        let params = {};
 
+        // ✅ FIX #3: Cleaner way to build the request with axios
         if (query) {
-          apiUrl = `${BASE_URL}/api/anime/search?limit=50&q=${encodeURIComponent(query)}`;
+          endpoint = '/anime/search';
+          params = { limit: 50, q: query };
         } else if (genreFilter && genreFilter !== 'All') {
-          apiUrl = `${BASE_URL}/api/anime/genre-based?genre=${encodeURIComponent(genreFilter)}`;
+          endpoint = '/anime/genre-based';
+          params = { genre: genreFilter };
         }
 
-        const response = await fetch(apiUrl, {
-          credentials: 'include'
-        });
+        // Using axios, which will automatically use the global `withCredentials: true` setting
+        const response = await axios.get(`${BASE_URL}${endpoint}`, { params });
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        const results = data.data || data;
+        // axios automatically parses JSON and puts it in `response.data`
+        const results = response.data.data || response.data;
         setSearchResults(results);
 
       } catch (e) {
-        console.error('Error fetching search results:', e);
+        console.error('Error fetching search results:', e.response?.data || e.message);
         setError(e);
       } finally {
         setLoading(false);

@@ -6,23 +6,20 @@ import { Link } from 'react-router-dom';
 import Navbar from '../../Navbar';
 
 const WatchlistPage = () => {
-  const { 
-    watchlist, 
-    loadingWatchlistGlobal, 
-    errorWatchlistGlobal, 
-    updateWatchlistStatusGlobal, 
-    removeFromWatchlistGlobal 
+  const {
+    watchlist,
+    loadingWatchlistGlobal,
+    errorWatchlistGlobal,
+    updateWatchlistStatusGlobal,
+    removeFromWatchlistGlobal
   } = useContext(WatchlistContext);
-  
+
   const [detailedWatchlist, setDetailedWatchlist] = useState([]);
   const [loadingDetails, setLoadingDetails] = useState(true);
   const [errorDetails, setErrorDetails] = useState(null);
 
-  // ✅ Determine base URL based on environment
-  const BASE_URL =
-  window.location.origin === 'http://localhost:5173'
-    ? 'http://localhost:8080'
-    : 'https://s89-durgaprasad-capstone-animestats.onrender.com';
+  // ✅ FIX #1: Replaced the hardcoded URL with the single, reliable environment variable.
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     if (!loadingWatchlistGlobal && watchlist && watchlist.length > 0) {
@@ -32,9 +29,9 @@ const WatchlistPage = () => {
         const details = await Promise.all(
           watchlist.map(async (item) => {
             try {
+              // ✅ FIX #2: Removed '/api' and the redundant 'withCredentials' object.
               const animeDetailsResponse = await axios.get(
-                `${BASE_URL}/api/anime/${item.animeId}`,
-                { withCredentials: true }
+                `${BASE_URL}/anime/${item.animeId}`
               );
               return { ...item, animeDetails: animeDetailsResponse.data };
             } catch (error) {
@@ -51,7 +48,7 @@ const WatchlistPage = () => {
       setDetailedWatchlist([]);
       setLoadingDetails(false);
     }
-  }, [watchlist, loadingWatchlistGlobal]);
+  }, [watchlist, loadingWatchlistGlobal, BASE_URL]); // Added BASE_URL to dependency array for correctness
 
   const handleStatusChange = (animeId, newStatus) => {
     updateWatchlistStatusGlobal(animeId, newStatus);
@@ -96,9 +93,9 @@ const WatchlistPage = () => {
               <div key={item.animeId} className="watchlist-item">
                 {item.animeDetails ? (
                   <>
-                    <Link 
-                      to={`/anime/${item.animeId}`} 
-                      className="watchlist-item-link" 
+                    <Link
+                      to={`/anime/${item.animeId}`}
+                      className="watchlist-item-link"
                       data-title={item.animeDetails.title}
                     >
                       {item.animeDetails.main_picture && (
@@ -112,7 +109,7 @@ const WatchlistPage = () => {
                         />
                       )}
                     </Link>
-                    
+
                     <div className="watchlist-controls">
                       <div className="status-label-group">
                         <span>Status</span>

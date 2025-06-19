@@ -1,7 +1,10 @@
-// SignupPage.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './SignupPage.css'; // Import dark theme CSS
+import axios from 'axios'; // ✅ FIX #1: Imported axios for consistency
+import './SignupPage.css';
+
+// ✅ FIX #2: Using the standard environment variable for the API URL
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function SignupPage() {
   const [username, setUsername] = useState('');
@@ -11,6 +14,7 @@ function SignupPage() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  // ✅ FIX #3: Converted this function to use axios
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError('');
@@ -21,25 +25,21 @@ function SignupPage() {
     }
 
     try {
-      const response = await fetch('http://localhost:8080/auth/local/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, email, password }),
+      // axios.post is cleaner and consistent with the rest of the app.
+      const response = await axios.post(`${API_BASE_URL}/auth/local/signup`, {
+        username,
+        email,
+        password,
       });
 
-      const data = await response.json();
+      // On success (status 2xx), this code will run.
+      console.log('Signup successful:', response.data);
+      navigate('/login');
 
-      if (response.ok) {
-        console.log('Signup successful:', data);
-        navigate('/login');
-      } else {
-        setError(data.message || 'Signup failed. Please try again.');
-      }
     } catch (err) {
-      console.error('Error during signup:', err);
-      setError('An unexpected error occurred. Please try again.');
+      // On failure (status 4xx or 5xx), axios throws an error, which is caught here.
+      console.error('Error during signup:', err.response?.data || err.message);
+      setError(err.response?.data?.message || 'Signup failed. Please try again.');
     }
   };
 
