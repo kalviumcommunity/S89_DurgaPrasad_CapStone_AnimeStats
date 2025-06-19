@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios'; // ✅ FIX #1: Imported axios for consistency
+import axios from 'axios';
 import './LoginPage.css';
 
-// This is already using the correct "master key" method. Perfect.
+// This variable is for DATA requests (like the login form). It's CORRECT.
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+// ✅ FIX: This is the NEW variable for browser redirect links (like Google login).
+const BACKEND_DOMAIN = import.meta.env.VITE_BACKEND_DOMAIN;
 
 const LoginPage = () => {
   const [identifier, setIdentifier] = useState('');
@@ -12,29 +15,27 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // This function is correct for an OAuth redirect flow. No changes needed.
   const handleGoogleLogin = () => {
-    window.location.href = `${API_BASE_URL}/auth/google/login`;
+    // ✅ FIX: This now uses the new variable to build the correct link WITHOUT /api.
+    // The final URL will be: https://...onrender.com/auth/google/login
+    window.location.href = `${BACKEND_DOMAIN}/auth/google/login`;
   };
 
-  // ✅ FIX #2: Converted this function to use axios.
   const handleLocalLogin = async (event) => {
     event.preventDefault();
     setError('');
 
     try {
-      // axios.post is cleaner. It will automatically use the global `withCredentials` setting.
+      // This is already correct. It uses API_BASE_URL to call the /api/... endpoint.
       const response = await axios.post(`${API_BASE_URL}/auth/local/login`, {
         identifier,
         password,
       });
 
-      // On success (status 2xx), this code will run.
       console.log('Local login successful:', response.data);
-      navigate('/dashboard'); // Or wherever your main app page is
+      navigate('/dashboard');
 
     } catch (err) {
-      // On failure (status 4xx or 5xx), axios throws an error, which is caught here.
       console.error('Error during local login:', err.response?.data || err.message);
       setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
     }

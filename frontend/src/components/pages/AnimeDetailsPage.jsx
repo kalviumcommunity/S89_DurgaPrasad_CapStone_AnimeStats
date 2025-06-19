@@ -95,13 +95,11 @@ const AnimeDetailsPage = () => {
   if (!animeDetails) {
     return <div className="anime-details-container no-data">No anime details found.</div>;
   }
-
-  return (
+return (
     <>
-      <Navbar />
+      <Navbar /> {/* ✅ Rendered Navbar here */}
 
       <div className="anime-details-page">
-        {/* The rest of your JSX remains unchanged */}
         <div className="anime-details-header">
           <h1 className="anime-details-title">{animeDetails.title}</h1>
         </div>
@@ -141,7 +139,7 @@ const AnimeDetailsPage = () => {
                   <option value="dropped">Dropped</option>
                 </select>
                 {!isInWatchlist && (
-                  <button className="button" onClick={handleAddToWatchlist} disabled={isAdding}>
+                  <button  className='button' onClick={handleAddToWatchlist} disabled={isAdding}>
                     {isAdding ? 'Adding...' : 'Add to My Watchlist'}
                   </button>
                 )}
@@ -154,7 +152,57 @@ const AnimeDetailsPage = () => {
             <p>{animeDetails.synopsis || 'Synopsis not available.'}</p>
           </div>
 
-          {/* ... The rest of your JSX ... */}
+          {animeDetails.background && (
+            <div className="anime-details-section background-section">
+              <h2>Background</h2>
+              <p>{animeDetails.background}</p>
+            </div>
+          )}
+
+          {animeDetails.characters && animeDetails.characters.length > 0 && (
+            <div className="anime-details-section characters-section">
+              <h2>Characters</h2>
+              <div className="characters-grid">
+                {animeDetails.characters.slice(0, 10).map((char, index) => (
+                  <div key={char.character.id || index} className="character-item">
+                    <img
+                      src={char.character.main_picture?.medium || char.character.main_picture?.large}
+                      alt={char.character.name}
+                      className="character-image"
+                    />
+                    <p className="character-name">{char.character.name}</p>
+                    {char.role && <p className="character-role">({char.role})</p>}
+                    {char.voice_actors && char.voice_actors.length > 0 && (
+                      <p className="character-voice-actor">
+                        VA: {char.voice_actors[0].person.name}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {animeDetails.related_anime && animeDetails.related_anime.length > 0 && (
+            <div className="anime-details-section related-anime-section">
+              <h2>Related Anime</h2>
+              <div className="related-anime-list">
+                {animeDetails.related_anime.map((related, index) => (
+                  <div key={related.node.id || index} className="related-anime-item">
+                    <Link to={`/anime/${related.node.id}`}>
+                      <img
+                        src={related.node.main_picture?.medium}
+                        alt={related.node.title}
+                        className="related-anime-image"
+                      />
+                      <p className="related-anime-title">{related.node.title}</p>
+                    </Link>
+                    <p className="related-anime-relation">({related.relation_type_formatted})</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </>
