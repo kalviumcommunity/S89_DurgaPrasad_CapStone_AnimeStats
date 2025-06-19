@@ -1,7 +1,10 @@
-// LoginPage.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios'; // ✅ FIX #1: Imported axios for consistency
 import './LoginPage.css';
+
+// This is already using the correct "master key" method. Perfect.
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const LoginPage = () => {
   const [identifier, setIdentifier] = useState('');
@@ -9,37 +12,31 @@ const LoginPage = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
+  // This function is correct for an OAuth redirect flow. No changes needed.
   const handleGoogleLogin = () => {
     window.location.href = `${API_BASE_URL}/auth/google/login`;
   };
 
+  // ✅ FIX #2: Converted this function to use axios.
   const handleLocalLogin = async (event) => {
     event.preventDefault();
     setError('');
 
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/local/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ identifier, password }),
-        credentials: 'include', // important if using cookies/session
+      // axios.post is cleaner. It will automatically use the global `withCredentials` setting.
+      const response = await axios.post(`${API_BASE_URL}/auth/local/login`, {
+        identifier,
+        password,
       });
 
-      const data = await response.json();
+      // On success (status 2xx), this code will run.
+      console.log('Local login successful:', response.data);
+      navigate('/dashboard'); // Or wherever your main app page is
 
-      if (response.ok) {
-        console.log('Local login successful:', data);
-        navigate('/dashboard');
-      } else {
-        setError(data.message || 'Login failed. Please check your credentials.');
-      }
     } catch (err) {
-      console.error('Error during local login:', err);
-      setError('An unexpected error occurred. Please try again.');
+      // On failure (status 4xx or 5xx), axios throws an error, which is caught here.
+      console.error('Error during local login:', err.response?.data || err.message);
+      setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
     }
   };
 

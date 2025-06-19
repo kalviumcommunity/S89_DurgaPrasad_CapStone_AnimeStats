@@ -10,7 +10,7 @@ import Navbar from '../../Navbar';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28CF2'];
 
-// ✅ Dynamic backend URL
+// ✅ This is already using the correct "master key" method.
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const StatsPage = () => {
@@ -21,19 +21,24 @@ const StatsPage = () => {
   const fetchStats = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${BASE_URL}/api/stats`, {
-        withCredentials: true
-      });
+
+      // ✅ FIX: Removed '/api' and the redundant 'withCredentials' object.
+      // This is now clean and consistent with all other API calls.
+      const response = await axios.get(`${BASE_URL}/stats`);
+
       setStats(response.data);
+      setError(null); // Clear previous errors on a successful fetch
     } catch (err) {
+      console.error('Failed to fetch stats:', err.response?.data || err.message);
       setError('Failed to fetch stats');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, []); // The dependency array is empty because BASE_URL is a constant within the component's scope.
 
   useEffect(() => {
     fetchStats();
+    // This is a nice feature to re-fetch when the user returns to the tab.
     window.addEventListener('focus', fetchStats);
     return () => {
       window.removeEventListener('focus', fetchStats);

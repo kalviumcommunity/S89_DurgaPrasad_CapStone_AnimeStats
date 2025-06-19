@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Navbar from '../../Navbar';
 import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios'; // ✅ FIX: Imported axios for consistency
 import '../HomePage.css';
 
 function HomePage() {
@@ -64,15 +65,16 @@ function HomePage() {
     }
   };
 
+  // This is already correct.
   const baseURL = import.meta.env.VITE_API_BASE_URL;
 
+  // ✅ FIX: All three fetch calls converted to use axios.
   useEffect(() => {
     const fetchTopAiring = async () => {
       try {
         setLoadingAiring(true);
-        const res = await fetch(`${baseURL}/api/anime/top-airing`);
-        const data = await res.json();
-        setTopAiring(data);
+        const response = await axios.get(`${baseURL}/anime/top-airing`);
+        setTopAiring(response.data);
       } catch (e) {
         setErrorAiring(e);
       } finally {
@@ -80,15 +82,14 @@ function HomePage() {
       }
     };
     fetchTopAiring();
-  }, []);
+  }, [baseURL]);
 
   useEffect(() => {
     const fetchTopRated = async () => {
       try {
         setLoadingRated(true);
-        const res = await fetch(`${baseURL}/api/anime/top-rated`);
-        const data = await res.json();
-        setTopRated(data);
+        const response = await axios.get(`${baseURL}/anime/top-rated`);
+        setTopRated(response.data);
       } catch (e) {
         setErrorRated(e);
       } finally {
@@ -96,15 +97,14 @@ function HomePage() {
       }
     };
     fetchTopRated();
-  }, []);
+  }, [baseURL]);
 
   useEffect(() => {
     const fetchPopular = async () => {
       try {
         setLoadingPopular(true);
-        const res = await fetch(`${baseURL}/api/anime/popular-season`);
-        const data = await res.json();
-        setPopularSeason(data);
+        const response = await axios.get(`${baseURL}/anime/popular-season`);
+        setPopularSeason(response.data);
       } catch (e) {
         setErrorPopular(e);
       } finally {
@@ -112,7 +112,7 @@ function HomePage() {
       }
     };
     fetchPopular();
-  }, []);
+  }, [baseURL]);
 
   useEffect(() => {
     const element = genreCarouselRef.current;

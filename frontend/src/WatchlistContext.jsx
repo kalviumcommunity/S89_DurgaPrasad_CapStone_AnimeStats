@@ -1,12 +1,13 @@
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
-axios.defaults.withCredentials = true; // Always send cookies (session)
+// This is perfect. It sets the default for all requests.
+axios.defaults.withCredentials = true;
 
 export const WatchlistContext = createContext();
 
-// ✅ Use VITE_API_URL from .env (safe and recommended)
-const BASE_URL = import.meta.env.VITE_API_URL;
+// ✅ FIX #1: Using the CORRECT variable name from Netlify/env file.
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const WatchlistProvider = ({ children }) => {
   const [watchlist, setWatchlist] = useState([]);
@@ -18,9 +19,9 @@ export const WatchlistProvider = ({ children }) => {
       setLoadingWatchlistGlobal(true);
       setErrorWatchlistGlobal(null);
 
-      const response = await axios.get(`${BASE_URL}/api/user/watchlist`, {
-        withCredentials: true,
-      });
+      // ✅ FIX #2: Removed '/api' because it's now in BASE_URL.
+      // ✅ FIX #3: Removed redundant withCredentials object.
+      const response = await axios.get(`${BASE_URL}/user/watchlist`);
 
       setWatchlist(response.data);
     } catch (error) {
@@ -37,10 +38,10 @@ export const WatchlistProvider = ({ children }) => {
 
   const updateWatchlistStatusGlobal = useCallback(async (animeId, newStatus) => {
     try {
+      // ✅ FIX #2 & #3 Applied here as well.
       const response = await axios.put(
-        `${BASE_URL}/api/user/watchlist/${animeId}`,
-        { status: newStatus },
-        { withCredentials: true }
+        `${BASE_URL}/user/watchlist/${animeId}`,
+        { status: newStatus }
       );
 
       if (response.data?.watchlist) {
@@ -55,10 +56,10 @@ export const WatchlistProvider = ({ children }) => {
 
   const addToWatchlistGlobal = useCallback(async (animeId, status) => {
     try {
+      // ✅ FIX #2 & #3 Applied here as well.
       const response = await axios.post(
-        `${BASE_URL}/api/user/watchlist`,
-        { animeId, status },
-        { withCredentials: true }
+        `${BASE_URL}/user/watchlist`,
+        { animeId, status }
       );
 
       if (response.data?.watchlist) {
@@ -71,10 +72,8 @@ export const WatchlistProvider = ({ children }) => {
 
   const removeFromWatchlistGlobal = useCallback(async (animeId) => {
     try {
-      const response = await axios.delete(
-        `${BASE_URL}/api/user/watchlist/${animeId}`,
-        { withCredentials: true }
-      );
+      // ✅ FIX #2 & #3 Applied here as well.
+      const response = await axios.delete(`${BASE_URL}/user/watchlist/${animeId}`);
 
       if (response.data?.watchlist) {
         setWatchlist(response.data.watchlist);

@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, useNavigate, Navigate } from 'react-route
 import { WatchlistProvider } from './WatchlistContext.jsx'; 
 
 // Import all your page components
-import LandingPage from './components/pages/LandingPage'; // 1. IMPORT THE NEW LANDING PAGE
+import LandingPage from './components/pages/LandingPage';
 import HomePage from './components/pages/HomePage';
 import LoginPage from './components/pages/LoginPage';
 import SignupPage from './components/pages/SignupPage';
@@ -12,29 +12,26 @@ import SearchResultsPage from './components/pages/SearchResultsPage';
 import AnimeDetailsPage from './components/pages/AnimeDetailsPage';
 import WatchlistPage from './components/pages/WatchlistPage';
 import StatsPage from './components/pages/StatsPage';
-// The MainContent component seems redundant now that you have a dedicated Landing Page,
-// but I've left the import in case you need it elsewhere.
 
-// Your LinkMal component remains the same
+// ✅ FIX: Using the environment variable for the API URL
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+// Correctly updated LinkMal component
 const LinkMal = () => {
   const navigate = useNavigate();
   useEffect(() => {
-    window.location.href = 'http://localhost:8080/auth/login';
+    // This now correctly points to your Render backend in production
+    window.location.href = `${API_BASE_URL}/auth/login`;
   }, [navigate]);
   return <div><p>Redirecting to MyAnimeList...</p></div>;
 };
 
 function App() {
   return (
-    // The provider should wrap the Router to make the context available to all routes
     <WatchlistProvider>
       <BrowserRouter>
         <Routes>
-          {/* --- 2. THIS IS THE KEY CHANGE --- */}
-          {/* The root path "/" now renders your new LandingPage */}
           <Route path="/" element={<LandingPage />} />
-
-          {/* All your other application routes remain the same */}
           <Route path="/home" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
@@ -45,7 +42,6 @@ function App() {
           <Route path="/watchlist" element={<WatchlistPage />} />
           <Route path="/stats" element={<StatsPage />} />
           
-          {/* A "catch-all" route that redirects any unknown URL back to the landing page */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
