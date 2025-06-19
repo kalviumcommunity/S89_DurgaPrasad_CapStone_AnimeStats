@@ -13,15 +13,16 @@ import AnimeDetailsPage from './components/pages/AnimeDetailsPage';
 import WatchlistPage from './components/pages/WatchlistPage';
 import StatsPage from './components/pages/StatsPage';
 
-// ✅ FIX: Using the environment variable for the API URL
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+// ✅ FIX: This is the NEW variable for browser redirect links (like MyAnimeList).
+const BACKEND_DOMAIN = import.meta.env.VITE_BACKEND_DOMAIN;
 
 // Correctly updated LinkMal component
 const LinkMal = () => {
   const navigate = useNavigate();
   useEffect(() => {
-    // This now correctly points to your Render backend in production
-    window.location.href = `${API_BASE_URL}/auth/login`;
+    // ✅ FIX: This now uses the new variable to build the correct link WITHOUT /api.
+    // The final URL will be: https://...onrender.com/auth/login
+    window.location.href = `${BACKEND_DOMAIN}/auth/login`;
   }, [navigate]);
   return <div><p>Redirecting to MyAnimeList...</p></div>;
 };
