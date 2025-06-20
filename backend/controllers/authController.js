@@ -51,34 +51,41 @@ const login = async (req, res) => {
     res.status(500).json({ message: 'Login failed', error: err.message });
   }
 };
-
 // =============== MAL OAUTH LOGIN ================
 const malLogin = async (req, res) => {
-  // This route is called after the Google login, so a session should exist.
-  if (!req.session.userId) {
-      console.error("MAL login attempted without a base session. Redirecting to main login.");
-      // Redirecting to the frontend login page is safer.
+  try {
+    // Validate that the session user actually exists.
+    if (!req.session.userId) {
+      console.error("MAL login attempted without a session userId.");
       return res.redirect(`${process.env.FRONTEND_URL}/login`);
-  }
-
-  const state = crypto.randomBytes(32).toString('hex');
-  const codeVerifier = crypto.randomBytes(64).toString('base64url');
-
-  req.session.state = state;
-  req.session.codeVerifier = codeVerifier;
-
-  const redirectUri = process.env.MAL_REDIRECT_URI;
-
-  const url = `https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=${process.env.MAL_CLIENT_ID}&state=${state}&code_challenge=${codeVerifier}&code_challenge_method=plain&redirect_uri=${redirectUri}`;
-
-  // Save the session with the new state/verifier BEFORE redirecting
-  req.session.save((err) => {
-    if (err) {
-      console.error('Session save error before MAL redirect:', err);
-      return res.status(500).send('Failed to save session.');
     }
-    res.redirect(url);
-  });
+
+    const user = await User.findById(req.session.userId);
+    if (!user) {
+      console.error("MAL login attempted with a stale/invalid session userId.");
+      return req.session.destroy(() => res.redirect(`${process.env.FRONTEND_URL}/login`));
+    }
+
+    const state = crypto.randomBytes(32).toString('hex');
+    const codeVerifier = crypto.randomBytes(64).toString('base64url');
+
+    req.session.state = state;
+    req.session.codeVerifier = codeVerifier;
+
+    const redirectUri = process.env.MAL_REDIRECT_URI;
+    const url = `https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=${process.env.MAL_CLIENT_ID}&state=${state}&code_challenge=${codeVerifier}&code_challenge_method=plain&redirect_uri=${redirectUri}`;
+
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error before MAL redirect:', err);
+        return req.session.destroy(() => res.status(500).send('Failed to prepare session for MAL login.'));
+      }
+      res.redirect(url);
+    });
+  } catch (error) {
+    console.error('Error during MAL login prep:', error);
+    res.status(500).send('An error occurred while preparing for MyAnimeList login.');
+  }
 };
 
 // =============== MAL OAUTH CALLBACK ================
@@ -95,6 +102,7 @@ const malCallback = async (req, res) => {
   }
 
   try {
+    // ✅ FIX: Restored the axios call to get the token
     const tokenResponse = await axios.post(
       'https://myanimelist.net/v1/oauth2/token',
       new URLSearchParams({
@@ -106,23 +114,20 @@ const malCallback = async (req, res) => {
         redirect_uri: process.env.MAL_REDIRECT_URI,
       }),
       {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       }
     );
 
     const { access_token, refresh_token, token_type, expires_in } = tokenResponse.data;
 
+    // ✅ FIX: Restored the axios call to get the user's MAL profile
     const userResponse = await axios.get('https://api.myanimelist.net/v2/users/@me', {
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-      },
+      headers: { Authorization: `Bearer ${access_token}` },
     });
 
     const malData = userResponse.data;
 
-    // Update the user in the database with MAL info
+    // Update the user in the database.
     await User.findByIdAndUpdate(session.userId, {
       mal: {
         username: malData.name,
@@ -131,17 +136,15 @@ const malCallback = async (req, res) => {
         tokenType: token_type,
         expiresAt: Date.now() + expires_in * 1000,
       },
-      malUsername: malData.name, // Make sure to set this top-level field for your logic
+      malUsername: malData.name,
       malAuthenticated: true,
     });
 
-    // Update the session object with the new MAL authentication status
+    // Update the live session object.
     session.malAuthenticated = true;
     session.malUsername = malData.name;
 
-    // ✅✅✅ THIS IS THE FINAL FIX ✅✅✅
-    // Wrap the final redirect in req.session.save() to guarantee the session is
-    // saved before the response is sent. This ensures the cookie is updated.
+    // Save the final, updated session before redirecting.
     req.session.save((err) => {
       if (err) {
         console.error('Session save error after MAL callback:', err);
@@ -156,7 +159,6 @@ const malCallback = async (req, res) => {
     res.status(500).send('Failed to authenticate with MyAnimeList.');
   }
 };
-
 // =============== REFRESH MAL TOKEN ================
 const refreshMalToken = async (user) => {
   if (!user.mal?.refreshToken) {
