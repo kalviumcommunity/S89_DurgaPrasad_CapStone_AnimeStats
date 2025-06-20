@@ -1,3 +1,4 @@
+
 const axios = require('axios');
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
@@ -5,7 +6,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 // =============== LOCAL SIGNUP ================
-// This function is fine as-is.
 const signup = async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password)
@@ -16,7 +16,8 @@ const signup = async (req, res) => {
     if (existingUser)
       return res.status(400).json({ message: 'User already exists' });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10); // 10 salt rounds
+
     const user = new User({ username, password: hashedPassword });
     await user.save();
 
@@ -27,7 +28,6 @@ const signup = async (req, res) => {
 };
 
 // =============== LOCAL LOGIN ================
-// This function is fine as-is. It sends JSON, not a redirect, so no race condition.
 const login = async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password)
@@ -42,17 +42,12 @@ const login = async (req, res) => {
     if (!passwordMatch)
       return res.status(401).json({ message: 'Invalid credentials' });
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-
-    req.session.userId = user._id;
-    // We should save the session here too for maximum consistency.
-    req.session.save((err) => {
-        if (err) {
-            console.error('Session save error on local login:', err);
-            return res.status(500).json({ message: 'Login failed, could not save session.' });
-        }
-        res.json({ message: 'Login successful', token });
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '7d',
     });
+
+    req.session.userId = user._id; // Storing user in session
+    res.json({ message: 'Login successful', token });
   } catch (err) {
     res.status(500).json({ message: 'Login failed', error: err.message });
   }
@@ -60,43 +55,22 @@ const login = async (req, res) => {
 
 // =============== MAL OAUTH LOGIN ================
 const malLogin = async (req, res) => {
-  try {
-    // ✅ ROBUSTNESS FIX: Validate that the session user actually exists in the DB.
-    if (!req.session.userId) {
-      console.error("MAL login attempted without a session userId.");
-      return res.redirect(`${process.env.FRONTEND_URL}/login`);
-    }
-    const user = await User.findById(req.session.userId);
-    if (!user) {
-      console.error("MAL login attempted with a stale/invalid session userId.");
-      // Destroy the bad session and force re-login.
-      req.session.destroy(() => {
-        res.redirect(`${process.env.FRONTEND_URL}/login`);
-      });
-      return; // Exit the function after starting the destroy/redirect.
-    }
+  if (!req.session.userId) return res.redirect('/api/auth/login');
 
-    const state = crypto.randomBytes(32).toString('hex');
-    const codeVerifier = crypto.randomBytes(64).toString('base64url');
+  const state = crypto.randomBytes(32).toString('hex');
+  const codeVerifier = crypto.randomBytes(64).toString('base64url');
 
-    req.session.state = state;
-    req.session.codeVerifier = codeVerifier;
+  req.session.state = state;
+  req.session.codeVerifier = codeVerifier;
+  req.session.authStartTime = Date.now();
+  req.session.codeUsed = false;
+  req.session.callbackProcessed = false;
 
-    const redirectUri = process.env.MAL_REDIRECT_URI;
-    const url = `https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=${process.env.MAL_CLIENT_ID}&state=${state}&code_challenge=${codeVerifier}&code_challenge_method=plain&redirect_uri=${redirectUri}`;
+  const redirectUri = process.env.MAL_REDIRECT_URI;
 
-    // ✅ FIX: Save the session BEFORE redirecting to prevent race conditions.
-    req.session.save((err) => {
-      if (err) {
-        console.error('Session save error before MAL redirect:', err);
-        return res.status(500).send('Failed to prepare session for MAL login.');
-      }
-      res.redirect(url);
-    });
-  } catch (error) {
-    console.error('Error during MAL login prep:', error);
-    res.status(500).send('An error occurred while preparing for MyAnimeList login.');
-  }
+  const url = `https://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=${process.env.MAL_CLIENT_ID}&state=${state}&code_challenge=${codeVerifier}&code_challenge_method=plain&redirect_uri=${redirectUri}`;
+
+  res.redirect(url);
 };
 
 // =============== MAL OAUTH CALLBACK ================
@@ -104,9 +78,10 @@ const malCallback = async (req, res) => {
   const { code, state } = req.query;
   const session = req.session;
 
-  if (!session || !session.userId) {
-    return res.status(400).send('Session expired or is invalid.');
+  if (!session || !session.userId || session.codeUsed || session.callbackProcessed) {
+    return res.status(400).send('Session expired or already used.');
   }
+
   if (!code || !state || state !== session.state) {
     return res.status(400).send('Invalid request or state mismatch.');
   }
@@ -122,16 +97,23 @@ const malCallback = async (req, res) => {
         code_verifier: session.codeVerifier,
         redirect_uri: process.env.MAL_REDIRECT_URI,
       }),
-      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      }
     );
+
     const { access_token, refresh_token, token_type, expires_in } = tokenResponse.data;
 
     const userResponse = await axios.get('https://api.myanimelist.net/v2/users/@me', {
-      headers: { Authorization: `Bearer ${access_token}` },
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
     });
+
     const malData = userResponse.data;
 
-    // Update the user in the database.
     await User.findByIdAndUpdate(session.userId, {
       mal: {
         username: malData.name,
@@ -139,32 +121,22 @@ const malCallback = async (req, res) => {
         refreshToken: refresh_token,
         tokenType: token_type,
         expiresAt: Date.now() + expires_in * 1000,
+        lastSynced: new Date(),
       },
-      malUsername: malData.name,
       malAuthenticated: true,
     });
 
-    // Update the live session object.
-    session.malAuthenticated = true;
-    session.malUsername = malData.name;
+    console.log("✅ Updated user MAL details:", await User.findById(session.userId));
 
-    // ✅✅✅ THE CRITICAL FIX ✅✅✅
-    // Save the final, updated session BEFORE redirecting.
-    req.session.save((err) => {
-      if (err) {
-        console.error('Session save error after MAL callback:', err);
-        return res.status(500).send('Failed to save session.');
-      }
-      console.log('Final session saved after MAL. Redirecting to home.');
-      res.redirect(`${process.env.FRONTEND_URL}/home`);
-    });
+    session.codeUsed = true;
+    session.callbackProcessed = true;
 
+    res.redirect(`${process.env.FRONTEND_URL}/home`);
   } catch (error) {
     console.error('❌ MAL OAuth error:', error.response?.data || error.message);
     res.status(500).send('Failed to authenticate with MyAnimeList.');
   }
 };
-
 
 // =============== REFRESH MAL TOKEN ================
 const refreshMalToken = async (user) => {
