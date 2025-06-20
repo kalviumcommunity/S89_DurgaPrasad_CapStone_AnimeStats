@@ -81,17 +81,21 @@ const googleCallback = async (req, res) => {
     req.session.googlePicture = picture;
 
     // Check if the user has already connected their MyAnimeList account
-    if (!user.malUsername) {
-      // If not connected, redirect to MyAnimeList login to initiate the connection
-      console.log('Redirecting to /api/auth/login for MAL');
-      return res.redirect('/auth/login');
-    } else {
-      // If already connected, redirect to the dashboard
-      console.log('Redirecting to dashboard');
-      // return res.redirect(`${FRONTEND_URL}/dashboard`);
-      console.log('Final Set-Cookie Header from Express:', res.getHeader('Set-Cookie'));
-       return res.redirect(`${FRONTEND_URL}/home`);
-    }
+    // if (!user.malUsername) {
+    //   // If not connected, redirect to MyAnimeList login to initiate the connection
+    //   console.log('Redirecting to /api/auth/login for MAL');
+    //   return res.redirect('/auth/login');
+    // } else {
+    //   // If already connected, redirect to the dashboard
+    //   console.log('Redirecting to dashboard');
+    //   // return res.redirect(`${FRONTEND_URL}/dashboard`);
+    //   console.log('Final Set-Cookie Header from Express:', res.getHeader('Set-Cookie'));
+    //    return res.redirect(`${FRONTEND_URL}/home`);
+    // }
+     console.log('Redirecting to home (TEST)');
+     console.log('Final Set-Cookie Header from Express:', res.getHeader('Set-Cookie'));
+    return res.redirect(`${FRONTEND_URL}/home`);
+
 
   } catch (error) {
     console.error('Google OAuth error:', error);
