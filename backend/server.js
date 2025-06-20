@@ -13,6 +13,7 @@ const statsRoutes = require('./routes/statsRoutes');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
+// ✅ 1. Enable CORS for frontend
 app.use(cors({
   origin: (origin, callback) => {
     const allowedOrigins = ['http://localhost:5173', 'https://animestats89.netlify.app'];
@@ -26,12 +27,10 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
+// ✅ 2. Parse JSON bodies
 app.use(express.json());
 
-// This setting tells Express globally to trust the proxy. It's good to keep.
-app.set('trust proxy', 1);
-
-// Session setup with the final fix for platform interference.
+// ✅ 3. Session setup with serialization fix
 app.use(session({
   secret: process.env.SESSION_SECRET || 'anime-stats-secret-key',
   resave: false,
@@ -50,28 +49,31 @@ app.use(session({
     secure: true,
     httpOnly: true,
     sameSite: 'None',
-    maxAge: 24 * 60 * 60 * 1000,
-    domain: '.onrender.com'
-  },
-  // ✅✅✅ THIS IS THE FINAL FIX ✅✅✅
-  // This tells express-session to trust the X-Forwarded-Proto header
-  // from Render's proxy, ensuring 'secure: true' works correctly.
-  proxy: true
+    maxAge: 24 * 60 * 60 * 1000
+  }
 }));
 
+// ✅ 4. Trust proxy if needed
+app.set('trust proxy', 1);
 
+
+// ✅ 5. Connect to MongoDB
 connectDB();
 
+// ✅ 6. Define routes
 app.use('/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/anime', animeRoutes);
 app.use('/api/user/watchlist', watchlistRoutes);
 app.use('/api/stats', statsRoutes);
 
+// ✅ 7. Root test route
 app.get('/', (req, res) => {
   res.send('Anime Watchlist Tracker Backend Running! 🚀');
 });
 
+
+// ✅ 9. Test OAuth UI
 app.get('/test-oauth', (req, res) => {
   res.send(`
     <h1>Test MyAnimeList OAuth</h1>
@@ -81,14 +83,13 @@ app.get('/test-oauth', (req, res) => {
   `);
 });
 
+// ✅ 10. Global error handler
 app.use((err, req, res, next) => {
   res.status(500).send('Server Error: Something went wrong.');
 });
 
+// ✅ 11. Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
-  // You can keep or remove these test logs now that we know the deployment works.
-  console.log('----------------------------------------------------');
-  console.log('SERVER.JS DEPLOYMENT TEST V5 - IF YOU SEE THIS, THE NEW CODE IS LIVE!');
-  console.log('----------------------------------------------------');
 });
+
