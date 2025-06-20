@@ -33,69 +33,71 @@ const googleCallback = async (req, res) => {
     const { tokens } = await oAuth2Client.getToken(code);
     oAuth2Client.setCredentials(tokens);
 
-    // Verify the ID token
+    // Verify the ID token and get user info
     const ticket = await oAuth2Client.verifyIdToken({
       idToken: tokens.id_token,
       audience: googleClientId,
     });
-
-    // Get user information from the payload
     const payload = ticket.getPayload();
     const { sub: googleId, email, name, picture } = payload;
 
-    // Check if the user already exists using googleId, otherwise check by email
+    // Find or create the user
     let user = await User.findOne({ googleId });
     if (!user) {
       user = await User.findOne({ email });
     }
-
-    // If user exists, update their information, if needed
     if (user) {
-      if (!user.googleId) user.googleId = googleId;
-      if (!user.name) user.name = name;
-      if (!user.profilePicture) user.profilePicture = picture;
+      user.googleId = user.googleId || googleId;
+      user.name = user.name || name;
+      user.profilePicture = user.profilePicture || picture;
       await user.save();
     } else {
-      // Create a new user with random username
       let username = (name || 'user').toLowerCase().replace(/\s+/g, '');
       let userExists = await User.findOne({ username });
       while (userExists) {
         username = `${username}${Math.floor(Math.random() * 1000)}`;
         userExists = await User.findOne({ username });
       }
-
       user = await new User({
-        googleId,
-        email,
-        name,
-        username,
-        profilePicture: picture,
+        googleId, email, name, username, profilePicture: picture,
       }).save();
     }
 
-    //  Set session with complete login info
+    // Set all the session data
     req.session.userId = user._id;
     req.session.isAuthenticated = true;
     req.session.googleName = name;
     req.session.googleEmail = email;
     req.session.googlePicture = picture;
 
-    // Check if the user has already connected their MyAnimeList account
-    // if (!user.malUsername) {
-    //   // If not connected, redirect to MyAnimeList login to initiate the connection
-    //   console.log('Redirecting to /api/auth/login for MAL');
-    //   return res.redirect('/auth/login');
-    // } else {
-    //   // If already connected, redirect to the dashboard
-    //   console.log('Redirecting to dashboard');
-    //   // return res.redirect(`${FRONTEND_URL}/dashboard`);
-    //   console.log('Final Set-Cookie Header from Express:', res.getHeader('Set-Cookie'));
-    //    return res.redirect(`${FRONTEND_URL}/home`);
-    // }
-     console.log('Redirecting to home (TEST)');
-     console.log('Final Set-Cookie Header from Express:', res.getHeader('Set-Cookie'));
-    return res.redirect(`${FRONTEND_URL}/home`);
+    // ✅✅✅ THIS IS THE CRITICAL FIX ✅✅✅
+    // We now wrap our redirects in `req.session.save()` to guarantee the session
+    // is saved before we send the response. This ensures the Set-Cookie header is attached.
 
+    // Check if the user has already connected their MyAnimeList account
+    if (!user.malUsername) {
+      // If not connected, save the session, THEN redirect to MyAnimeList login
+      req.session.save((err) => {
+        if (err) {
+          console.error('Session save error before MAL redirect:', err);
+          return res.status(500).send('Failed to save session.');
+        }
+        console.log('Session saved successfully. Redirecting to /auth/login for MAL');
+        res.redirect('/auth/login');
+      });
+    } else {
+      // If already connected, save the session, THEN redirect to the frontend
+      req.session.save((err) => {
+        if (err) {
+          console.error('Session save error before home redirect:', err);
+          return res.status(500).send('Failed to save session.');
+        }
+        console.log('Session saved successfully. Redirecting to home.');
+        // This log will now show the real cookie header
+        console.log('Final Set-Cookie Header from Express:', res.getHeader('Set-Cookie'));
+        res.redirect(`${FRONTEND_URL}/home`);
+      });
+    }
 
   } catch (error) {
     console.error('Google OAuth error:', error);
