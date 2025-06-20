@@ -52,9 +52,10 @@ const login = async (req, res) => {
   }
 };
 // =============== MAL OAUTH LOGIN ================
+// =============== MAL OAUTH LOGIN ================
 const malLogin = async (req, res) => {
   try {
-    // Validate that the session user actually exists.
+    // ✅ ROBUSTNESS FIX: Validate that the session user actually exists in the DB.
     if (!req.session.userId) {
       console.error("MAL login attempted without a session userId.");
       return res.redirect(`${process.env.FRONTEND_URL}/login`);
@@ -63,7 +64,11 @@ const malLogin = async (req, res) => {
     const user = await User.findById(req.session.userId);
     if (!user) {
       console.error("MAL login attempted with a stale/invalid session userId.");
-      return req.session.destroy(() => res.redirect(`${process.env.FRONTEND_URL}/login`));
+      // ✅ ROBUSTNESS FIX: No need to return here, just call destroy.
+      req.session.destroy(() => {
+        res.redirect(`${process.env.FRONTEND_URL}/login`);
+      });
+      return; // Exit the function
     }
 
     const state = crypto.randomBytes(32).toString('hex');
@@ -77,8 +82,9 @@ const malLogin = async (req, res) => {
 
     req.session.save((err) => {
       if (err) {
+        // ✅ ROBUSTNESS FIX: Simplified error handling.
         console.error('Session save error before MAL redirect:', err);
-        return req.session.destroy(() => res.status(500).send('Failed to prepare session for MAL login.'));
+        return res.status(500).send('Failed to prepare session for MAL login.');
       }
       res.redirect(url);
     });
@@ -102,7 +108,6 @@ const malCallback = async (req, res) => {
   }
 
   try {
-    // ✅ FIX: Restored the axios call to get the token
     const tokenResponse = await axios.post(
       'https://myanimelist.net/v1/oauth2/token',
       new URLSearchParams({
@@ -113,21 +118,17 @@ const malCallback = async (req, res) => {
         code_verifier: session.codeVerifier,
         redirect_uri: process.env.MAL_REDIRECT_URI,
       }),
-      {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      }
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
     );
 
     const { access_token, refresh_token, token_type, expires_in } = tokenResponse.data;
 
-    // ✅ FIX: Restored the axios call to get the user's MAL profile
     const userResponse = await axios.get('https://api.myanimelist.net/v2/users/@me', {
       headers: { Authorization: `Bearer ${access_token}` },
     });
 
     const malData = userResponse.data;
 
-    // Update the user in the database.
     await User.findByIdAndUpdate(session.userId, {
       mal: {
         username: malData.name,
