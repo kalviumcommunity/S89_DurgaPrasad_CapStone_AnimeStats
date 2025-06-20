@@ -13,7 +13,6 @@ const statsRoutes = require('./routes/statsRoutes');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// ✅ 1. Enable CORS for frontend
 app.use(cors({
   origin: (origin, callback) => {
     const allowedOrigins = ['http://localhost:5173', 'https://animestats89.netlify.app'];
@@ -23,14 +22,15 @@ app.use(cors({
     callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-// ✅ 2. Parse JSON bodies
 app.use(express.json());
 
-// ✅ 3. Session setup with serialization fix
+// This setting tells Express globally to trust the 'X-Forwarded-Proto' header from Render's proxy.
+// It should come before the session middleware.
+app.set('trust proxy', 1);
+
+// Session setup with the final fix for platform interference.
 app.use(session({
   secret: process.env.SESSION_SECRET || 'anime-stats-secret-key',
   resave: false,
@@ -40,10 +40,6 @@ app.use(session({
     collectionName: 'sessions',
     ttl: 24 * 60 * 60,
     autoRemove: 'native',
-    touchAfter: 24 * 3600,
-    stringify: false,
-    serialize: (session) => session,
-    unserialize: (session) => session
   }),
   cookie: {
     secure: true,
@@ -51,23 +47,21 @@ app.use(session({
     sameSite: 'None',
     maxAge: 24 * 60 * 60 * 1000,
     domain: '.onrender.com'
-  }
+  },
+  // ✅✅✅ THIS IS THE FINAL FIX ✅✅✅
+  // This tells express-session to trust the proxy and ensures 'secure: true'
+  // and 'sameSite: "None"' work correctly in the Render environment.
+  proxy: true
 }));
 
-// ✅ 4. Trust proxy if needed
-app.set('trust proxy', 1);
 
-
-// ✅ 5. Connect to MongoDB
 connectDB();
 
-// ✅ 6. Define routes
 app.use('/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/anime', animeRoutes);
 app.use('/api/user/watchlist', watchlistRoutes);
 app.use('/api/stats', statsRoutes);
-
 // ✅ 7. Root test route
 app.get('/', (req, res) => {
   res.send('Anime Watchlist Tracker Backend Running! 🚀');
