@@ -92,5 +92,8 @@ app.use((err, req, res, next) => {
 // ✅ 11. Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
+  console.log('----------------------------------------------------');
+  console.log('SERVER.JS DEPLOYMENT TEST V5 - IF YOU SEE THIS, THE NEW CODE IS LIVE!');
+  console.log('----------------------------------------------------');
 });
 
