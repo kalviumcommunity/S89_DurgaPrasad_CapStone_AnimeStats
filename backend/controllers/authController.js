@@ -126,7 +126,8 @@ const malCallback = async (req, res) => {
       malAuthenticated: true,
     });
 
-    console.log("✅ Updated user MAL details:", await User.findById(session.userId));
+    // Log removed to avoid exposing user details in production
+    // console.log("✅ Updated user MAL details:", await User.findById(session.userId));
 
     session.codeUsed = true;
     session.callbackProcessed = true;
