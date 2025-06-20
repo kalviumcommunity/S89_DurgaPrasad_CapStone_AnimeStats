@@ -29,11 +29,9 @@ const googleCallback = async (req, res) => {
   const { code } = req.query;
 
   try {
-    // Get the access token
+    // Get the access token and user info from Google
     const { tokens } = await oAuth2Client.getToken(code);
     oAuth2Client.setCredentials(tokens);
-
-    // Verify the ID token and get user info
     const ticket = await oAuth2Client.verifyIdToken({
       idToken: tokens.id_token,
       audience: googleClientId,
@@ -41,7 +39,7 @@ const googleCallback = async (req, res) => {
     const payload = ticket.getPayload();
     const { sub: googleId, email, name, picture } = payload;
 
-    // Find or create the user
+    // Find or create the user in your database
     let user = await User.findOne({ googleId });
     if (!user) {
       user = await User.findOne({ email });
@@ -70,11 +68,10 @@ const googleCallback = async (req, res) => {
     req.session.googleEmail = email;
     req.session.googlePicture = picture;
 
-    // ✅✅✅ THIS IS THE CRITICAL FIX ✅✅✅
-    // We now wrap our redirects in `req.session.save()` to guarantee the session
+    // ✅✅✅ THE CRITICAL FIX ✅✅✅
+    // We now wrap BOTH redirect paths in `req.session.save()` to guarantee the session
     // is saved before we send the response. This ensures the Set-Cookie header is attached.
 
-    // Check if the user has already connected their MyAnimeList account
     if (!user.malUsername) {
       // If not connected, save the session, THEN redirect to MyAnimeList login
       req.session.save((err) => {
@@ -82,7 +79,7 @@ const googleCallback = async (req, res) => {
           console.error('Session save error before MAL redirect:', err);
           return res.status(500).send('Failed to save session.');
         }
-        console.log('Session saved successfully. Redirecting to /auth/login for MAL');
+        console.log('Session saved (Google). Redirecting to MAL login.');
         res.redirect('/auth/login');
       });
     } else {
@@ -92,9 +89,7 @@ const googleCallback = async (req, res) => {
           console.error('Session save error before home redirect:', err);
           return res.status(500).send('Failed to save session.');
         }
-        console.log('Session saved successfully. Redirecting to home.');
-        // This log will now show the real cookie header
-        console.log('Final Set-Cookie Header from Express:', res.getHeader('Set-Cookie'));
+        console.log('Session saved (Google). Redirecting to home.');
         res.redirect(`${FRONTEND_URL}/home`);
       });
     }
