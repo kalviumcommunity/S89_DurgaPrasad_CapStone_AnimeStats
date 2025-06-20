@@ -89,6 +89,7 @@ const googleCallback = async (req, res) => {
       // If already connected, redirect to the dashboard
       console.log('Redirecting to dashboard');
       // return res.redirect(`${FRONTEND_URL}/dashboard`);
+      console.log('Final Set-Cookie Header from Express:', res.getHeader('Set-Cookie'));
        return res.redirect(`${FRONTEND_URL}/home`);
     }
 
