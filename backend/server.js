@@ -46,7 +46,6 @@ app.use(session({
     httpOnly: true,
     sameSite: 'None',
     maxAge: 24 * 60 * 60 * 1000,
-    domain: '.onrender.com'
   },
   // ✅✅✅ THIS IS THE FINAL FIX ✅✅✅
   // This tells express-session to trust the proxy and ensures 'secure: true'
@@ -77,6 +76,14 @@ app.get('/test-oauth', (req, res) => {
     <p>Then check: <a href="/debug-session">debug-session</a></p>
   `);
 });
+
+app.get('/debug-session', (req, res) => {
+  res.json({
+    session: req.session,
+    cookies: req.headers.cookie,
+  });
+});
+
 
 // ✅ 10. Global error handler
 app.use((err, req, res, next) => {
