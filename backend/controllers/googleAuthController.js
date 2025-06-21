@@ -95,7 +95,7 @@ const googleCallback = async (req, res) => {
     }
 
   } catch (error) {
-    console.error('Google OAuth error:', error);
+    console.error('Google OAuth error:', error.response?.data || error.message || error);
     res.status(500).send('Google authentication failed.');
   }
 };
