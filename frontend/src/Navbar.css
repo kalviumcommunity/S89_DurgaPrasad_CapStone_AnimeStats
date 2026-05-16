@@ -31,6 +31,7 @@
 .navbar-center-right-wrapper {
   display: flex;
   align-items: center;
+  gap: 1.25rem;
 
   /* 
     --- THIS IS YOUR MANUAL ADJUSTMENT KNOB ---
@@ -38,7 +39,7 @@
     Increase it to move the block MORE to the LEFT.
     Decrease it to move the block MORE to the RIGHT.
   */
-  margin-right: 10rem; /* 👈 ADJUST THIS VALUE MANUALLY */
+  margin-right: 0;
 }
 
 /* Left group (arrow + logo) */
@@ -73,9 +74,8 @@
   align-items: center;
   gap: 10px;
   width: 100%;
-  max-width: 630px;
-  /* Add margin to create space between search and links */
-  margin-right: 15rem;
+  max-width: min(60vw, 630px);
+  margin-right: 0;
 }
 
 /* Form element aesthetics */

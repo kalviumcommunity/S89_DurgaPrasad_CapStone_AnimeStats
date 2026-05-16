@@ -39,13 +39,6 @@ function Navbar() {
     }
   };
 
-  // Genre Tag Click
-  const handleGenreTagClick = (genre) => {
-    navigate(`/search-results?genre=${encodeURIComponent(genre)}`);
-    setSearchTerm('');
-    setSelectedSearchGenre('All');
-  };
-
   // Back Button Function
   const handleBackClick = () => {
     navigate(-1); // Go to previous page

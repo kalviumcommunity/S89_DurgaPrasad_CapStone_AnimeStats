@@ -1,10 +1,9 @@
-import React, { createContext, useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import { WatchlistContext } from './watchlistContext';
 
 // This is perfect. It sets the default for all requests.
 axios.defaults.withCredentials = true;
-
-export const WatchlistContext = createContext();
 
 // ✅ FIX #1: Using the CORRECT variable name from Netlify/env file.
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;

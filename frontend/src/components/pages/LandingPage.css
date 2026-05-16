@@ -75,23 +75,23 @@
   border: 2px solid transparent;
 }
 
-.login-btn {
+.landing-btn.login-btn {
   background-color: transparent;
   color: #00bfff;
   border-color: #00bfff;
 }
 
-.login-btn:hover {
+.landing-btn.login-btn:hover {
   background-color: #00bfff;
   color: #121212;
 }
 
-.signup-btn {
+.landing-btn.signup-btn {
   background-color: #00bfff;
   color: #121212;
 }
 
-.signup-btn:hover {
+.landing-btn.signup-btn:hover {
   background-color: #00a2d4;
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(0, 191, 255, 0.2);
