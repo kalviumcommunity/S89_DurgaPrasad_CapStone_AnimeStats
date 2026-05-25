@@ -4,7 +4,7 @@ import axios from 'axios';
 import './AnimeDetailsPage.css';
 
 import Navbar from '../../Navbar';
-import { WatchlistContext } from '../../WatchlistContext';
+import { WatchlistContext } from '../../watchlistContext';
 
 // ✅ FIX #1: Replaced the hardcoded URL with the single, reliable environment variable.
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -16,7 +16,6 @@ const AnimeDetailsPage = () => {
   const [errorDetails, setErrorDetails] = useState(null);
   const [isAdding, setIsAdding] = useState(false);
   const [isInWatchlist, setIsInWatchlist] = useState(false);
-  const [watchlistStatus, setWatchlistStatus] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState('plan_to_watch');
 
   const { watchlist, updateWatchlistStatusGlobal, addToWatchlistGlobal } = useContext(WatchlistContext);
@@ -51,11 +50,9 @@ const AnimeDetailsPage = () => {
       const existingItem = watchlist.find(item => item.animeId === currentAnimeId);
       if (existingItem) {
         setIsInWatchlist(true);
-        setWatchlistStatus(existingItem.status);
         setSelectedStatus(existingItem.status);
       } else {
         setIsInWatchlist(false);
-        setWatchlistStatus(null);
         setSelectedStatus('plan_to_watch');
       }
     }
@@ -67,7 +64,6 @@ const AnimeDetailsPage = () => {
       const currentAnimeId = parseInt(id, 10);
       await addToWatchlistGlobal(currentAnimeId, selectedStatus);
       setIsInWatchlist(true);
-      setWatchlistStatus(selectedStatus);
     } catch (error) {
       console.error('Error adding to watchlist:', error.response?.data?.message || error.message);
     } finally {

@@ -4,6 +4,16 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios'; // ✅ FIX: Imported axios for consistency
 import '../HomePage.css';
 
+const genres = [
+  'All', 'Action', 'Adventure', 'Cars', 'Comedy', 'Dementia', 'Demons',
+  'Mystery', 'Drama', 'Ecchi', 'Fantasy', 'Game', 'Historical', 'Horror',
+  'Kids', 'Magic', 'Mecha', 'Music', 'Parody', 'Samurai', 'Romance',
+  'School', 'Sci-Fi', 'Shoujo', 'Shoujo Ai', 'Shounen', 'Shounen Ai',
+  'Slice of Life', 'Space', 'Sports', 'Super Power', 'Vampire',
+  'Harem', 'Supernatural', 'Military', 'Police', 'Psychological',
+  'Thriller', 'Seinen', 'Josei'
+];
+
 function HomePage() {
   const navigate = useNavigate();
 
@@ -34,16 +44,6 @@ function HomePage() {
   const [showRatedRightArrow, setShowRatedRightArrow] = useState(true);
   const [showPopularLeftArrow, setShowPopularLeftArrow] = useState(false);
   const [showPopularRightArrow, setShowPopularRightArrow] = useState(true);
-
-  const genres = [
-    'All', 'Action', 'Adventure', 'Cars', 'Comedy', 'Dementia', 'Demons',
-    'Mystery', 'Drama', 'Ecchi', 'Fantasy', 'Game', 'Historical', 'Horror',
-    'Kids', 'Magic', 'Mecha', 'Music', 'Parody', 'Samurai', 'Romance',
-    'School', 'Sci-Fi', 'Shoujo', 'Shoujo Ai', 'Shounen', 'Shounen Ai',
-    'Slice of Life', 'Space', 'Sports', 'Super Power', 'Vampire',
-    'Harem', 'Supernatural', 'Military', 'Police', 'Psychological',
-    'Thriller', 'Seinen', 'Josei'
-  ];
 
   const checkScrollPosition = (ref, setLeftArrow, setRightArrow) => {
     if (ref.current) {
@@ -126,7 +126,7 @@ function HomePage() {
       element.removeEventListener('scroll', handleCheck);
       window.removeEventListener('resize', handleCheck);
     };
-  }, [genres]);
+  }, []);
 
   useEffect(() => {
     const element = topAiringCarouselRef.current;

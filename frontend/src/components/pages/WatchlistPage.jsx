@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import './WatchlistPage.css';
-import { WatchlistContext } from '../../WatchlistContext';
+import { WatchlistContext } from '../../watchlistContext';
 import { Link } from 'react-router-dom';
 import Navbar from '../../Navbar';
 
