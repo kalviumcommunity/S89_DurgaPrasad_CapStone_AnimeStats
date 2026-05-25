@@ -3,19 +3,18 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  padding: var(--space-md) 0;
+  height: 100vh;
   background-color: #121212; /* Dark background */
 }
 
 /* Main login box */
 .login-box {
   background-color: #1e1e1e; /* Slightly lighter for contrast */
-  padding: var(--space-lg);
+  padding: 2.5rem;
   border-radius: 12px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
   width: 100%;
-  max-width: clamp(280px, 90vw, 420px);
+  max-width: 400px;
   box-sizing: border-box;
   color: #ffffff;
 }
