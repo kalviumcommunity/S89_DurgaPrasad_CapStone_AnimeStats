@@ -1,9 +1,9 @@
 /* client/src/pages/AnimeDetailsPage.css */
 
 .anime-details-page {
-  max-width: var(--container-max-width);
+  max-width: 1200px;
   margin: 20px auto;
-  padding: var(--space-md);
+  padding: 20px;
   background-color: #1a1a1a; /* Dark background */
   color: #f0f0f0; /* Light text */
   border-radius: 8px;
@@ -50,7 +50,7 @@
 
 .anime-details-poster {
   width: 100%;
-  max-width: clamp(180px, 26vw, 320px); /* Fluid limit */
+  max-width: 300px; /* Limit image width */
   height: auto;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
@@ -169,8 +169,8 @@
 }
 
 .character-image {
-  width: clamp(64px, 12vw, 100px);
-  height: clamp(64px, 12vw, 100px);
+  width: 100px; /* Fixed width for character images */
+  height: 100px; /* Fixed height for character images */
   border-radius: 50%; /* Make them circular */
   object-fit: cover; /* Ensure image covers the area */
   border: 2px solid #555;
@@ -201,7 +201,7 @@
 
 .related-anime-item {
   text-align: center;
-  width: clamp(110px, 16vw, 160px); /* Fluid width */
+  width: 150px; /* Fixed width for related anime cards */
   background-color: #2c2c2c;
   padding: 10px;
   border-radius: 8px;
@@ -220,7 +220,7 @@
 
 .related-anime-image {
   width: 100%;
-  aspect-ratio: 2/3;
+  height: 200px; /* Adjust height as needed */
   object-fit: cover;
   border-radius: 4px;
   margin-bottom: 10px;

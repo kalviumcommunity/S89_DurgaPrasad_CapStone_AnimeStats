@@ -2,9 +2,9 @@
 
 /* --- General Page Styling --- */
 .stats-page {
-  max-width: var(--container-max-width);
+  max-width: 1000px;
   margin: 0 auto;
-  padding: var(--space-lg) var(--space-md);
+  padding: 40px 2rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #c0c0c0; /* Default text color to a light gray */
   background-color: #181818; /* The main dark background */
@@ -67,12 +67,6 @@
 .recharts-text,
 .recharts-legend-item-text {
   fill: #b0b0b0 !important; /* Use fill for SVG text, !important to override defaults */
-}
-
-/* Ensure charts and svgs do not overflow their container */
-.recharts-wrapper, .recharts-wrapper svg {
-  max-width: 100%;
-  box-sizing: border-box;
 }
 
 /* Style the Tooltip popup */
