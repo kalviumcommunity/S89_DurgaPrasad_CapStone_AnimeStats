@@ -5,7 +5,6 @@ import './Navbar.css';
 function Navbar() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSearchGenre, setSelectedSearchGenre] = useState('All');
-  const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
 
   // The full list of genres
@@ -45,9 +44,6 @@ function Navbar() {
     navigate(-1); // Go to previous page
   };
 
-  const toggleMobile = () => setMobileOpen((s) => !s);
-  const closeMobile = () => setMobileOpen(false);
-
   return (
     <nav className="navbar">
       <div className="navbar-container">
@@ -55,6 +51,7 @@ function Navbar() {
           <button className="back-button" onClick={handleBackClick}>←</button>
           <Link to="/home" className="logo">Anime</Link> {/* Logo link to /home */}
         </div>
+        
         <div className="navbar-center-right-wrapper">
           <form className="search-form" onSubmit={handleSearchSubmit}>
             <input
@@ -83,38 +80,6 @@ function Navbar() {
             <Link to="/stats">Stats</Link>
             <Link to="/watchlist">My Watchlist</Link>
           </div>
-        </div>
-        
-        {/* Mobile menu toggle */}
-        <button className="mobile-toggle" onClick={toggleMobile} aria-label="Open menu">☰</button>
-
-        {/* Mobile drawer */}
-        <div className={`mobile-drawer ${mobileOpen ? 'open' : ''}`} role="dialog" aria-modal="true">
-          <div className="mobile-drawer-inner">
-            <button className="mobile-close" onClick={closeMobile} aria-label="Close menu">✕</button>
-            <form className="search-form mobile" onSubmit={(e) => { handleSearchSubmit(e); closeMobile(); }}>
-              <input
-                type="text"
-                placeholder="Search anime..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <select
-                value={selectedSearchGenre}
-                onChange={(e) => setSelectedSearchGenre(e.target.value)}
-              >
-                {genres.map((genre) => (
-                  <option key={genre} value={genre}>{genre === 'All' ? 'All Genres' : genre}</option>
-                ))}
-              </select>
-              <button type="submit">Search</button>
-            </form>
-            <nav className="mobile-links">
-              <Link to="/stats" onClick={closeMobile}>Stats</Link>
-              <Link to="/watchlist" onClick={closeMobile}>My Watchlist</Link>
-            </nav>
-          </div>
-          <div className="mobile-drawer-overlay" onClick={closeMobile} />
         </div>
         
       </div>
