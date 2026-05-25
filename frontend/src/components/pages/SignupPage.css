@@ -2,17 +2,18 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
+  padding: var(--space-md) 0;
   background-color: #121212;
 }
 
 .signup-box {
   background-color: #1e1e1e;
-  padding: 2.5rem;
+  padding: var(--space-lg);
   border-radius: 12px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
   width: 100%;
-  max-width: 450px;
+  max-width: clamp(300px, 92vw, 480px);
   box-sizing: border-box;
   color: #ffffff;
 }

@@ -1,8 +1,8 @@
 /* General Page Styling */
 .watchlist-page {
-  max-width: 1400px;
+  max-width: var(--container-max-width);
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: var(--space-lg) var(--space-md);
   color: #e0e0e0;
 }
 
