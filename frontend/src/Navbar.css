@@ -154,6 +154,23 @@
   }
 }
 
+/* Small screens adjustments */
+@media (max-width: 768px) {
+  .navbar-container { padding: 0 16px; }
+  .search-form { max-width: 100%; gap: 8px; }
+  .search-form input { padding: 8px 10px; }
+  .search-form select { display: none; } /* hide select on narrow screens */
+  .navbar-right { gap: 1rem; }
+}
+
+@media (max-width: 480px) {
+  .search-form { display: none; } /* hide full search on very small screens */
+  .navbar-center-right-wrapper { justify-content: space-between; }
+  .navbar-left { gap: 12px; }
+  .logo { font-size: 1.4rem; }
+  body { padding-top: 110px; }
+}
+
 /* --- Body Padding to prevent content from hiding under navbar --- */
 body {
   padding-top: 80px;
