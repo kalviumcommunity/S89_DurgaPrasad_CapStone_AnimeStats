@@ -244,7 +244,17 @@ function HomePage() {
           <div className="section-container">
             <button className="carousel-arrow left" onClick={() => handleScroll(topAiringCarouselRef, 'left')} aria-label="Scroll left" disabled={!showAiringLeftArrow}>‹</button>
             <div className="carousel-fade-wrapper">
-              <div className="anime-carousel" ref={topAiringCarouselRef}>
+              <div
+                className="anime-carousel"
+                ref={topAiringCarouselRef}
+                tabIndex={0}
+                role="region"
+                aria-label="Top Airing carousel"
+                onKeyDown={(e) => {
+                  if (e.key === 'ArrowLeft') handleScroll(topAiringCarouselRef, 'left');
+                  if (e.key === 'ArrowRight') handleScroll(topAiringCarouselRef, 'right');
+                }}
+              >
                 {topAiring.map((anime) => (
                   <Link to={`/anime/${anime.id}`} key={anime.id} className="anime-card-link">
                     <div className="anime-card">
@@ -267,7 +277,17 @@ function HomePage() {
           <div className="section-container">
             <button className="carousel-arrow left" onClick={() => handleScroll(topRatedCarouselRef, 'left')} aria-label="Scroll left" disabled={!showRatedLeftArrow}>‹</button>
             <div className="carousel-fade-wrapper">
-              <div className="anime-carousel" ref={topRatedCarouselRef}>
+              <div
+                className="anime-carousel"
+                ref={topRatedCarouselRef}
+                tabIndex={0}
+                role="region"
+                aria-label="Top Rated carousel"
+                onKeyDown={(e) => {
+                  if (e.key === 'ArrowLeft') handleScroll(topRatedCarouselRef, 'left');
+                  if (e.key === 'ArrowRight') handleScroll(topRatedCarouselRef, 'right');
+                }}
+              >
                 {topRated.map((anime) => (
                   <Link to={`/anime/${anime.id}`} key={anime.id} className="anime-card-link">
                     <div className="anime-card">
@@ -290,7 +310,17 @@ function HomePage() {
           <div className="section-container">
             <button className="carousel-arrow left" onClick={() => handleScroll(popularSeasonCarouselRef, 'left')} aria-label="Scroll left" disabled={!showPopularLeftArrow}>‹</button>
             <div className="carousel-fade-wrapper">
-              <div className="anime-carousel" ref={popularSeasonCarouselRef}>
+              <div
+                className="anime-carousel"
+                ref={popularSeasonCarouselRef}
+                tabIndex={0}
+                role="region"
+                aria-label="Popular This Season carousel"
+                onKeyDown={(e) => {
+                  if (e.key === 'ArrowLeft') handleScroll(popularSeasonCarouselRef, 'left');
+                  if (e.key === 'ArrowRight') handleScroll(popularSeasonCarouselRef, 'right');
+                }}
+              >
                 {popularSeason.map((anime) => (
                   <Link to={`/anime/${anime.id}`} key={anime.id} className="anime-card-link">
                     <div className="anime-card">
