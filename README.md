@@ -1,178 +1,229 @@
-# S89_DurgaPrasad_CapStone_AnimeStats
+# AnimeStats - Anime Watchlist & Analytics Platform
 
-# Anime Watchlist Tracker - Project Documentation
+## Live Demo
 
-# Project Overview
-The Anime Watchlist Tracker is a web application designed for anime fans to track their watchlist, get personalized recommendations, and explore trending anime. It integrates with MyAnimeList for user authentication and watchlist data, and uses Jikan API for fetching anime details.
+https://animestats89.netlify.app/
 
-# Tech Stack:
-- Frontend: HTML, CSS, JavaScript, React
-- Backend: Express.js, Mongoose, MongoDB
-- API Integration: MyAnimeList OAuth, Jikan API
-- Hosting: Netlify,render
+---
+
+# Overview
+
+AnimeStats is a full-stack anime tracking and analytics platform built for anime fans to manage their watchlists, explore trending anime, track detailed progress statistics, and receive personalized anime recommendations.
+
+The application integrates MyAnimeList OAuth for authentication and Jikan API for real-time anime data fetching.
+
+---
 
 # Features
-# 1. User Authentication (MyAnimeList OAuth)
-- Users log in via MyAnimeList OAuth, which allows the app to access their anime watchlist.
-- Fetches user data like watch status, ratings, and anime lists.
 
-# 2. Watchlist & Stats Tracking
-- Displays a detailed watchlist including:
-- Anime titles
-- Watch status (Watching, Completed, Dropped, On Hold, Plan to Watch)
-- User ratings
-- Anime cover images
+## Authentication
 
-# * Provides detailed stats:
-- Seasons and episodes left to complete a series
-- Total anime watched and progress
-- Graphical representation of watch history
+* Secure login using MyAnimeList OAuth
+* Fetches user anime lists, ratings, and watch status
+* Personalized user experience
 
-# 3. Personalized Anime Recommendations
-- If a user stops at an episode, the system reminds them of what they are missing.
-* Recommends similar anime based on:
-- Jikan API data (for quick recommendations).
-- User’s watch history stored in MongoDB (for deep personalization).
+## Watchlist Tracking
 
-# 4. Explore & Search Anime
-- Users can search for anime and get details like synopsis, rating, and user stats.
-- A genre selection bar helps users find anime by category.
-- Displays Top Airing & Top Rated anime fetched from Jikan API.
+* Track anime watch progress
+* Display anime cover images and details
+* Watch statuses:
 
-# 5. Anime News Section
-- Fetches and displays the latest anime news from external sources.
+  * Watching
+  * Completed
+  * Dropped
+  * On Hold
+  * Plan to Watch
 
-# Tech Stack & API Usage
-- Frontend (React)
-- React.js for building the user interface.
-- CSS & Styled Components for styling.
-- React Router for navigation.
-- Backend (Express, MongoDB)
-- Express.js for server-side logic.
-- Mongoose & MongoDB for storing user watch history and preferences.
+## Advanced Anime Statistics
+
+* Episodes remaining to complete a series
+* Total anime watched
+* Personalized watch progress analytics
+* Visual representation of anime activity
+
+## Personalized Recommendations
+
+* Anime recommendations based on user watch history
+* Smart suggestions when users stop watching a series
+* Genre-based recommendation system
+
+## Explore Anime
+
+* Global anime search
+* Genre filtering
+* Top Airing Anime section
+* Top Rated Anime section
+* Detailed anime information including:
+
+  * Synopsis
+  * Ratings
+  * Popularity
+  * User statistics
+
+## Anime News
+
+* Displays latest anime-related updates and news
+
+---
+
+# Tech Stack
+
+## Frontend
+
+* React.js
+* HTML5
+* CSS3
+* JavaScript
+* React Router
+
+## Backend
+
+* Node.js
+* Express.js
+
+## Database
+
+* MongoDB
+* Mongoose
+
+## APIs
+
+* MyAnimeList OAuth API
+* Jikan API
+
+## Deployment
+
+* Netlify (Frontend)
+* Render (Backend)
+
+---
 
 # API Integrations
-🔹 Jikan API
-- Fetches anime details, top airing anime, top rated anime, and search results.
-- Provides genre-based filtering.
 
-🔹 MyAnimeList OAuth API
-- Authenticates users and fetches their watchlist & ratings.
-- Tracks watch status (Watching, Dropped, Completed, etc.).
+## Jikan API
 
-# How It Works
-# Step 1: User Login
-- Users log in via MyAnimeList OAuth (this redirects them to MyAnimeList to authorize access).
-- The system fetches their watchlist, ratings, and statuses.
+Used for:
 
-# Step 2: Watchlist & Stats Tracking
-- The user’s anime watchlist is displayed.
-* Unique stats are calculated:
-- Number of episodes left
-- Total anime completed
-- Personalized progress analysis
+* Anime search
+* Top airing anime
+* Top rated anime
+* Genre filtering
+* Anime recommendations
 
-# Step 3: Recommendations System
-- If a user stops at an episode, the system notifies them and suggests similar anime.
-- Uses Jikan API for quick recommendations.
-- Uses MongoDB stored user history for deeper personalization.
+## MyAnimeList OAuth API
 
-# Step 4: Explore Anime & News
-- Users can search for anime and view details.
-- A Top Airing & Top Rated anime section is displayed.
-- A genre selection bar helps users filter anime.
-- The Anime News Section keeps users updated on the latest anime trends.
+Used for:
+
+* User authentication
+* Watchlist access
+* Ratings & anime status tracking
+
+---
+
+# Project Workflow
+
+## Step 1: User Authentication
+
+Users log in through MyAnimeList OAuth to securely access their anime data.
+
+## Step 2: Watchlist & Statistics
+
+The application fetches and displays:
+
+* Watch history
+* Anime progress
+* Episodes left
+* Personalized analytics
+
+## Step 3: Recommendation Engine
+
+The system recommends anime based on:
+
+* User watch history
+* Similar anime genres
+* User engagement patterns
+
+## Step 4: Anime Exploration
+
+Users can:
+
+* Search anime
+* Filter by genre
+* Explore top anime
+* Read anime news updates
+
+---
+
+# Installation & Setup
+
+## Clone Repository
+
+```bash
+git clone https://github.com/TSDPRASAD88/S89_DurgaPrasad_CapStone_AnimeStats.git
+```
+
+## Install Frontend Dependencies
+
+```bash
+cd client
+npm install
+```
+
+## Install Backend Dependencies
+
+```bash
+cd server
+npm install
+```
+
+## Run Frontend
+
+```bash
+npm run dev
+```
+
+## Run Backend
+
+```bash
+npm start
+```
+
+---
+
+# Environment Variables
+
+Create a `.env` file inside the server folder and add:
+
+```env
+PORT=5000
+MONGO_URI=your_mongodb_uri
+CLIENT_ID=your_mal_client_id
+CLIENT_SECRET=your_mal_client_secret
+SESSION_SECRET=your_session_secret
+```
+
+---
 
 # Future Enhancements
-* Anime Trailer Integration – Display trailers using YouTube API.
-* Friend System – Compare anime watchlists with friends.
-* Leaderboard & Challenges – Gamify anime tracking with badges & points.
 
-# Final Thoughts
-* Easy to use – Simple UI with interactive tracking.
-* Unique Stats – No other website provides this level of anime watch progress detail.
-* Completely Free – No paid subscriptions needed.
-* Optimized Design – Dark mode with a clean, anime-friendly aesthetic.
+* Anime trailer integration using YouTube API
+* Friend system for comparing watchlists
+* Leaderboards & achievement badges
+* AI-powered recommendation system
+* Mobile responsive improvements
 
-**This project aims to be the ultimate anime watchlist tracker with deep stats & recommendations!**
+---
 
+# Author
 
-# Weekly Plan for Anime Watchlist Tracker
+## Thamarana Satya Durga Prasad
 
-# Week 1: April 9 - April 15
-* Focus: Project Setup + Frontend Basic Pages
-- Set up the project repository (GitHub).
-- Initialize React app (Vite/CRA).
-- Install required libraries (React Router, Styled Components, Axios, etc.).
-- Set up basic file structure for frontend (pages, components, services folders).
-- Create basic frontend pages (routes):
-- Home Page (Top Airing & Top Rated section placeholder).
-- Watchlist Page (blank).
-- Stats Dashboard Page (blank).
-- Search Page (blank).
-- News Section (blank).
-- Basic dark mode theme setup (global CSS / Styled Components ThemeProvider).
+* GitHub: https://github.com/TSDPRASAD88
+* LinkedIn: [www.linkedin.com/in/satya-durga-prasad-thamarana-a65324326
+]
 
-# Week 2: April 16 - April 22
-* Focus: Backend Setup + User Authentication
-- Initialize backend server (Express.js).
-- Connect to MongoDB database using Mongoose.
-- Set up user model for storing user data & watch history.
-- Implement MyAnimeList OAuth authentication (basic login flow).
-- After login, fetch user profile and watchlist data.
-- Store initial fetched user data into MongoDB.
+---
 
-* Frontend:
-- Implement login page and handle MyAnimeList OAuth flow.
-- Show "Logged In" state after successful login.
+# Final Note
 
-
-# Week 3: April 23 - April 29
-* Focus: Watchlist Display + Basic Stats
-
-* Backend:
-- Create API endpoints to fetch and update watchlist data.
-
-* Frontend:
-- Display the user's anime watchlist (title, image, watch status, rating).
-
-* Display simple stats:
-- Total anime watched.
-- Anime by status (Watching, Completed, etc.).
-- Integrate Jikan API to fetch anime cover images if needed.
-- Build Watchlist Page UI (with progress bars, status tags).
-
-
-# Week 4: April 30 - May 6
-* Focus: Recommendations System + Explore Page
-
-* Backend:
-- Design logic to suggest anime if a user stops mid-series (based on history).
-- Create recommendation engine (basic version using Jikan API).
-
-* Frontend:
-- Display recommendations in Stats Dashboard.
-- Build Explore/Search page:
-- Anime search input.
-- Search results display (synopsis, rating, cover image).
-- Genre filter bar.
-- Display Top Airing and Top Rated anime using Jikan API.
-
-# Week 5: May 7 - May 15
-* Focus: Anime News, Final Polish & Testing
-- Integrate Anime News API (or fetch latest news articles manually).
-- Build Anime News section on frontend.
-- Add UI hover effects, button styles, final polish.
-- Responsive design check (mobile/tablet).
-
-* Full testing:
-- Test user login/logout.
-- Test watchlist fetch and update.
-- Test recommendation notifications.
-- Test search and explore features.
-- Test news fetching.
-- Finalize hosting:
-- Frontend on Netlify.
-- Backend on Render, Railway, or another serverless platform.
-
-**Final debugging and performance optimization**
+AnimeStats was built to provide anime fans with a clean, interactive, and data-rich anime tracking experience with deep watch analytics and personalized recommendations.
